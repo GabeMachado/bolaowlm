@@ -9,7 +9,6 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
     --orange: #E78B2E;
-    --orange-dark: #c4711a;
     --orange-light: #f5a855;
     --bg: #030710;
     --bg2: #0a1020;
@@ -31,10 +30,9 @@
   body { background: var(--bg); color: var(--text); font-family: system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
   #app { min-height: 100vh; display: flex; flex-direction: column; }
 
-  nav { background: var(--bg2); border-bottom: 1px solid var(--border2); padding: 0 1rem; display: flex; align-items: center; gap: 0; position: sticky; top: 0; z-index: 100; }
+  nav { background: var(--bg2); border-bottom: 1px solid var(--border2); padding: 0 1rem; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
   .nav-brand { font-size: 16px; font-weight: 700; color: var(--orange); padding: 14px 0; margin-right: 1.5rem; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
-  .nav-brand span { font-size: 20px; }
-  .nav-tabs { display: flex; gap: 0; flex: 1; overflow-x: auto; }
+  .nav-tabs { display: flex; flex: 1; overflow-x: auto; }
   .nav-tab { padding: 14px 14px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .15s; background: none; border-top: none; border-left: none; border-right: none; }
   .nav-tab:hover { color: var(--text); }
   .nav-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
@@ -58,6 +56,7 @@
   .btn { padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all .15s; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
   .btn-primary { background: var(--orange); color: #000; }
   .btn-primary:hover { background: var(--orange-light); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
   .btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
   .btn-ghost:hover { border-color: var(--orange); color: var(--orange); }
   .btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
@@ -78,9 +77,7 @@
   .tbl tr:last-child td { border-bottom: none; }
   .tbl tr:hover td { background: var(--surface2); }
   .tbl .rank { font-weight: 700; font-size: 15px; color: var(--orange); }
-  .tbl .pts { font-weight: 700; font-size: 15px; }
   .nome-cell { font-weight: 600; }
-  .sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
 
   .jogo-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: .5rem; padding: .75rem 1rem; }
   .jogo-card.encerrado { border-color: rgba(34,197,94,.2); }
@@ -111,7 +108,7 @@
   .fase-tab.active { background: var(--orange); border-color: var(--orange); color: #000; }
   .fase-tab:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
 
-  .palpite-grid { display: grid; grid-template-columns: 1fr; gap: .5rem; }
+  .palpite-grid { display: grid; gap: .5rem; }
   .palpite-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg3); border-radius: var(--radius); padding: .6rem .8rem; gap: .5rem; }
   .pi-participante { font-size: 12px; font-weight: 600; min-width: 80px; }
   .pi-placar { font-size: 14px; font-weight: 700; color: var(--orange); }
@@ -138,7 +135,6 @@
   .stat-lbl { font-size: 11px; color: var(--text3); margin-top: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
 
   .campeao-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 700; color: var(--orange); background: rgba(231,139,46,.12); padding: 3px 8px; border-radius: 20px; }
-
   .divider { border: none; border-top: 1px solid var(--border); margin: 1rem 0; }
   .empty { text-align: center; padding: 2rem; color: var(--text3); font-size: 13px; }
   .spin { animation: spin 1s linear infinite; display: inline-block; }
@@ -147,14 +143,13 @@
 
   @media (max-width: 600px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .podio { grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+    .podio { gap: .5rem; }
     .podio-card { padding: .75rem .5rem; }
     .podio-nome { font-size: 12px; }
     .podio-pts { font-size: 16px; }
-    .nav-brand { font-size: 13px; }
+    .nav-brand { font-size: 13px; margin-right: .75rem; }
     .page { padding: 1rem .75rem; }
   }
-
   @media print {
     nav, .btn, .fase-tabs, .form-row { display: none !important; }
     body { background: white; color: #000; }
@@ -170,107 +165,140 @@
   <div id="main-content"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 const SUPABASE_URL = 'https://gqvjqadugnnhthboxwfb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxdmpxYWR1Z25uaHRoYm94d2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTc2NDgsImV4cCI6MjA5Njc3MzY0OH0.tEuXQtl0Lwo9HQ22EvxnkGEOb93zdvvF8TDuX6f_BsM';
-const ADMIN_PASSWORD = 'copa2026';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const GRUPOS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
-const FASES = {grupo:'Grupos', oitavas:'Oitavas', quartas:'Quartas', semi:'Semifinais', final_4:'Semifinal Final', terceiro:'3º Lugar', final:'Final'};
+const FASES = {grupo:'Grupos',oitavas:'Oitavas',quartas:'Quartas',semi:'Semifinais',final_4:'Semifinal Final',terceiro:'3º Lugar',final:'Final'};
 const CAMPEOES_OPCOES = ['México','Coreia do Sul','República Tcheca','África do Sul','Canadá','Bósnia','Qatar','Suíça','Brasil','Haiti','Escócia','Marrocos','EUA','Austrália','Turquia','Paraguai','Alemanha','Costa do Marfim','Equador','Curaçao','Holanda','Suécia','Tunísia','Japão','Bélgica','Irã','Nova Zelândia','Egito','Espanha','Arábia Saudita','Uruguai','Cabo Verde','França','Iraque','Noruega','Senegal','Argentina','Áustria','Jordânia','Argélia','Portugal','Uzbequistão','Colômbia','RD Congo','Inglaterra','Gana','Panamá','Croácia'].sort();
 
-let state = { tab: 'ranking', adminLogado: false, jogos: [], participantes: [], palpites: [], ranking: [], loading: false, msg: null, fase: 'grupo', grupo: 'A' };
+let state = {
+  tab: 'ranking', adminLogado: false, session: null,
+  jogos: [], participantes: [], palpites: [], ranking: [],
+  loading: false, msg: null, fase: 'grupo', grupo: 'A'
+};
 
+// ---- API REST direto (sem auth) ----
 async function api(path, method='GET', body=null) {
-  const opts = { method, headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': method === 'POST' ? 'return=representation' : '' }};
+  const opts = { method, headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer '+SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': method==='POST'?'return=representation':'' }};
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(SUPABASE_URL+path, opts);
-  if (!r.ok && r.status !== 204) { const e = await r.json(); throw new Error(e.message||'Erro'); }
-  if (r.status === 204) return null;
+  if (!r.ok && r.status!==204) { const e=await r.json(); throw new Error(e.message||'Erro'); }
+  if (r.status===204) return null;
   return r.json();
 }
 
+// ---- LOGIN via Supabase Auth ----
+async function loginAdmin() {
+  const email = 'admin@bolao.com';
+  const senha = document.getElementById('admin-pass')?.value;
+  if (!senha) { showMsg('Digite a senha', true); return; }
+  const btn = document.getElementById('btn-login');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader spin"></i> Entrando...'; }
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: senha });
+    if (error) throw error;
+    state.session = data.session;
+    state.adminLogado = true;
+    render();
+  } catch(e) {
+    showMsg('Senha incorreta', true);
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="ti ti-lock"></i> Entrar'; }
+  }
+}
+
+async function logoutAdmin() {
+  await sb.auth.signOut();
+  state.adminLogado = false;
+  state.session = null;
+  render();
+}
+
+// ---- DADOS ----
 async function loadAll() {
   state.loading = true; render();
   try {
-    const [j, p, pa] = await Promise.all([
+    const [j,p,pa] = await Promise.all([
       api('/rest/v1/jogos?select=*&order=numero'),
       api('/rest/v1/participantes?select=*&order=nome'),
       api('/rest/v1/palpites?select=*')
     ]);
-    state.jogos = j || [];
-    state.participantes = p || [];
-    state.palpites = pa || [];
+    state.jogos = j||[]; state.participantes = p||[]; state.palpites = pa||[];
     computeRanking();
-  } catch(e) { showMsg('Erro ao carregar dados: '+e.message, true); }
+  } catch(e) { showMsg('Erro ao carregar: '+e.message, true); }
   state.loading = false; render();
 }
 
 function computeRanking() {
   const map = {};
-  for (const p of state.participantes) {
-    map[p.id] = { id: p.id, nome: p.nome, campeao: p.palpite_campeao||'—', pts: 0, exatos: 0, resultados: 0, parciais: 0 };
-  }
+  for (const p of state.participantes)
+    map[p.id] = { id:p.id, nome:p.nome, campeao:p.palpite_campeao||'—', pts:0, exatos:0, resultados:0, parciais:0 };
   for (const pa of state.palpites) {
     if (!map[pa.participante_id]) continue;
     const m = map[pa.participante_id];
-    if (pa.pontos === 5) { m.pts += 5; m.exatos++; }
-    else if (pa.pontos === 3) { m.pts += 3; m.resultados++; }
-    else if (pa.pontos === 1) { m.pts += 1; m.parciais++; }
+    if (pa.pontos===5){m.pts+=5;m.exatos++;}
+    else if(pa.pontos===3){m.pts+=3;m.resultados++;}
+    else if(pa.pontos===1){m.pts+=1;m.parciais++;}
   }
-  state.ranking = Object.values(map).sort((a,b) => b.pts-a.pts || b.exatos-a.exatos || b.resultados-a.resultados || b.parciais-a.parciais);
+  state.ranking = Object.values(map).sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos||b.resultados-a.resultados||b.parciais-a.parciais);
 }
 
 function showMsg(txt, err=false) {
-  state.msg = { txt, err }; render();
-  setTimeout(() => { state.msg = null; render(); }, 3500);
+  state.msg={txt,err}; render();
+  setTimeout(()=>{state.msg=null;render();},3500);
 }
 
-function setTab(t) { state.tab = t; render(); }
+function setTab(t) { state.tab=t; render(); }
 
+// ---- RENDER ----
 function render() {
   const tabs = [
-    { id: 'ranking', label: 'Ranking', icon: 'ti-trophy' },
-    { id: 'jogos', label: 'Jogos', icon: 'ti-ball-football' },
-    { id: 'palpites-pub', label: 'Palpites', icon: 'ti-target' },
-    { id: 'admin', label: 'Admin', icon: 'ti-settings', badge: true },
+    {id:'ranking',label:'Ranking',icon:'ti-trophy'},
+    {id:'jogos',label:'Jogos',icon:'ti-ball-football'},
+    {id:'palpites-pub',label:'Palpites',icon:'ti-target'},
+    {id:'admin',label:'Admin',icon:'ti-settings',badge:true},
   ];
-  document.getElementById('nav-tabs').innerHTML = tabs.map(t => `
+  document.getElementById('nav-tabs').innerHTML = tabs.map(t=>`
     <button class="nav-tab ${state.tab===t.id?'active':''}" onclick="setTab('${t.id}')">
       <i class="ti ${t.icon}" aria-hidden="true"></i> ${t.label}
       ${t.badge?'<span class="admin-badge">ADM</span>':''}
     </button>`).join('');
 
   const el = document.getElementById('main-content');
-  if (state.loading) { el.innerHTML = '<div class="page"><div class="empty"><i class="ti ti-loader spin" style="font-size:24px"></i><br>Carregando...</div></div>'; return; }
-  if (state.tab === 'ranking') el.innerHTML = renderRanking();
-  else if (state.tab === 'jogos') el.innerHTML = renderJogos();
-  else if (state.tab === 'palpites-pub') el.innerHTML = renderPalpitesPub();
-  else if (state.tab === 'admin') el.innerHTML = state.adminLogado ? renderAdmin() : renderLogin();
+  if (state.loading) { el.innerHTML='<div class="page"><div class="empty"><i class="ti ti-loader spin" style="font-size:24px"></i><br>Carregando...</div></div>'; return; }
+  if (state.tab==='ranking') el.innerHTML=renderRanking();
+  else if (state.tab==='jogos') el.innerHTML=renderJogos();
+  else if (state.tab==='palpites-pub') el.innerHTML=renderPalpitesPub();
+  else if (state.tab==='admin') el.innerHTML=state.adminLogado?renderAdmin():renderLogin();
 }
 
+// ---- RANKING ----
 function renderRanking() {
-  const r = state.ranking;
-  const totalJogos = state.jogos.filter(j=>j.encerrado).length;
-  const totalPalpites = state.palpites.length;
-  const totalExatos = state.palpites.filter(p=>p.pontos===5).length;
+  const r=state.ranking;
+  const totalJogos=state.jogos.filter(j=>j.encerrado).length;
+  const totalPalpites=state.palpites.length;
+  const totalExatos=state.palpites.filter(p=>p.pontos===5).length;
 
-  let podio = '';
-  if (r.length >= 1) {
-    const p1 = r[0], p2 = r[1]||null, p3 = r[2]||null;
-    podio = `<div class="podio">
+  let podio='';
+  if (r.length>=1) {
+    const p1=r[0],p2=r[1]||null,p3=r[2]||null;
+    podio=`<div class="podio">
       ${p2?`<div class="podio-card p2"><div class="podio-pos">🥈</div><div class="podio-nome">${p2.nome}</div><div class="podio-pts">${p2.pts} pts</div><div class="podio-sub">${p2.exatos}⭐ ${p2.resultados}✓ ${p2.parciais}〜</div></div>`:'<div></div>'}
       <div class="podio-card p1"><div class="podio-pos">🏆</div><div class="podio-nome">${p1.nome}</div><div class="podio-pts">${p1.pts} pts</div><div class="podio-sub">${p1.exatos}⭐ ${p1.resultados}✓ ${p1.parciais}〜</div></div>
       ${p3?`<div class="podio-card p3"><div class="podio-pos">🥉</div><div class="podio-nome">${p3.nome}</div><div class="podio-pts">${p3.pts} pts</div><div class="podio-sub">${p3.exatos}⭐ ${p3.resultados}✓ ${p3.parciais}〜</div></div>`:'<div></div>'}
     </div>`;
   }
 
-  const rows = r.map((p,i) => {
-    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+  const rows=r.map((p,i)=>{
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
     return `<tr>
       <td class="rank">${medal||i+1}</td>
       <td class="nome-cell">${p.nome}<br><span class="campeao-badge" style="margin-top:4px">⭐ ${p.campeao}</span></td>
-      <td class="pts" style="color:var(--orange)">${p.pts}</td>
+      <td style="color:var(--orange);font-weight:700;font-size:15px">${p.pts}</td>
       <td><span class="badge badge-5">⭐ ${p.exatos}</span></td>
       <td><span class="badge badge-3">✓ ${p.resultados}</span></td>
       <td><span class="badge badge-1">〜 ${p.parciais}</span></td>
@@ -281,13 +309,13 @@ function renderRanking() {
     <div class="page-title"><i class="ti ti-trophy"></i> Ranking</div>
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num">${r.length}</div><div class="stat-lbl">Participantes</div></div>
-      <div class="stat-card"><div class="stat-num">${totalJogos}</div><div class="stat-lbl">Jogos encerrados</div></div>
+      <div class="stat-card"><div class="stat-num">${totalJogos}</div><div class="stat-lbl">Encerrados</div></div>
       <div class="stat-card"><div class="stat-num">${totalPalpites}</div><div class="stat-lbl">Palpites</div></div>
-      <div class="stat-card"><div class="stat-num">${totalExatos}</div><div class="stat-lbl">Placares exatos</div></div>
+      <div class="stat-card"><div class="stat-num">${totalExatos}</div><div class="stat-lbl">Exatos</div></div>
     </div>
     ${podio}
     ${state.msg?`<div class="alert ${state.msg.err?'alert-error':'alert-success'}">${state.msg.txt}</div>`:''}
-    <div class="card" style="padding:0;overflow:hidden;">
+    <div class="card" style="padding:0;overflow:hidden">
       <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
         <span class="section-label" style="margin:0">Classificação completa</span>
         <button class="btn btn-ghost btn-sm" onclick="window.print()"><i class="ti ti-printer"></i> Imprimir</button>
@@ -299,23 +327,19 @@ function renderRanking() {
         </table>
       </div>
     </div>
-    <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:.75rem;">⭐ Placar exato = 5pts &nbsp;|&nbsp; ✓ Resultado certo = 3pts &nbsp;|&nbsp; 〜 Acerto parcial = 1pt &nbsp;|&nbsp; 🏆 Campeão = +20pts</div>
+    <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:.75rem">⭐ Placar exato = 5pts &nbsp;|&nbsp; ✓ Resultado = 3pts &nbsp;|&nbsp; 〜 Parcial = 1pt &nbsp;|&nbsp; 🏆 Campeão = +20pts</div>
   </div>`;
 }
 
+// ---- JOGOS ----
 function renderJogos() {
-  const jogosFiltrados = state.fase === 'grupo'
-    ? state.jogos.filter(j => j.fase==='grupo' && j.grupo_id === (GRUPOS.indexOf(state.grupo)+1))
-    : state.jogos.filter(j => j.fase === state.fase);
-
-  const faseTabs = Object.entries(FASES).map(([k,v]) =>
-    `<button class="fase-tab ${state.fase===k?'active':''}" onclick="state.fase='${k}';render()">${v}</button>`
-  ).join('');
-  const grupoTabs = state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:'';
-
-  const jogoCards = jogosFiltrados.map(j => {
-    const status = j.encerrado?`<span class="badge badge-enc">✓ Encerrado</span>`:`<span class="badge badge-pend">Pendente</span>`;
-    const placar = j.encerrado
+  const filtrados=state.fase==='grupo'
+    ?state.jogos.filter(j=>j.fase==='grupo'&&j.grupo_id===(GRUPOS.indexOf(state.grupo)+1))
+    :state.jogos.filter(j=>j.fase===state.fase);
+  const faseTabs=Object.entries(FASES).map(([k,v])=>`<button class="fase-tab ${state.fase===k?'active':''}" onclick="state.fase='${k}';render()">${v}</button>`).join('');
+  const grupoTabs=state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:'';
+  const cards=filtrados.map(j=>{
+    const placar=j.encerrado
       ?`<span class="placar-num">${j.gols_casa}</span><span class="placar-sep">×</span><span class="placar-num">${j.gols_fora}</span>`
       :`<span class="placar-sep" style="color:var(--text3);font-size:13px">vs</span>`;
     return `<div class="jogo-card ${j.encerrado?'encerrado':''}">
@@ -323,7 +347,8 @@ function renderJogos() {
         <span class="jogo-num">Jogo ${j.numero}</span>
         <span class="jogo-fase">${FASES[j.fase]||j.fase}</span>
         ${j.grupo_id?`<span class="jogo-grupo">Grupo ${GRUPOS[j.grupo_id-1]}</span>`:''}
-        <span style="flex:1"></span>${status}
+        <span style="flex:1"></span>
+        ${j.encerrado?'<span class="badge badge-enc">✓ Encerrado</span>':'<span class="badge badge-pend">Pendente</span>'}
       </div>
       <div class="jogo-placar">
         <div class="jogo-time">${j.time_casa}</div>
@@ -331,37 +356,27 @@ function renderJogos() {
         <div class="jogo-time fora">${j.time_fora}</div>
       </div>
     </div>`;
-  }).join('')||'<div class="empty">Nenhum jogo encontrado</div>';
-
-  return `<div class="page">
-    <div class="page-title"><i class="ti ti-ball-football"></i> Tabela de Jogos</div>
-    <div class="fase-tabs">${faseTabs}</div>${grupoTabs}${jogoCards}
-  </div>`;
+  }).join('')||'<div class="empty">Nenhum jogo</div>';
+  return `<div class="page"><div class="page-title"><i class="ti ti-ball-football"></i> Tabela de Jogos</div><div class="fase-tabs">${faseTabs}</div>${grupoTabs}${cards}</div>`;
 }
 
+// ---- PALPITES PÚBLICO ----
 function renderPalpitesPub() {
-  const jogosFiltrados = state.fase==='grupo'
-    ? state.jogos.filter(j=>j.fase==='grupo' && j.grupo_id===(GRUPOS.indexOf(state.grupo)+1))
-    : state.jogos.filter(j=>j.fase===state.fase);
-
-  const faseTabs = Object.entries(FASES).map(([k,v]) =>
-    `<button class="fase-tab ${state.fase===k?'active':''}" onclick="state.fase='${k}';render()">${v}</button>`
-  ).join('');
-  const grupoTabs = state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:'';
-
-  const partMap = {};
-  for (const p of state.participantes) partMap[p.id] = p.nome;
-
-  const jogosHtml = jogosFiltrados.map(j => {
-    const palp = state.palpites.filter(p=>p.jogo_id===j.id);
-    const palpHtml = palp.length===0
-      ?'<div class="empty" style="padding:.5rem">Nenhum palpite</div>'
+  const filtrados=state.fase==='grupo'
+    ?state.jogos.filter(j=>j.fase==='grupo'&&j.grupo_id===(GRUPOS.indexOf(state.grupo)+1))
+    :state.jogos.filter(j=>j.fase===state.fase);
+  const faseTabs=Object.entries(FASES).map(([k,v])=>`<button class="fase-tab ${state.fase===k?'active':''}" onclick="state.fase='${k}';render()">${v}</button>`).join('');
+  const grupoTabs=state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:'';
+  const partMap={};
+  for (const p of state.participantes) partMap[p.id]=p.nome;
+  const jogosHtml=filtrados.map(j=>{
+    const palp=state.palpites.filter(p=>p.jogo_id===j.id);
+    const palpHtml=palp.length===0?'<div class="empty" style="padding:.5rem">Nenhum palpite</div>'
       :palp.map(p=>{
-        const pts = p.pontos;
-        let bc='badge-0', cl='—';
-        if(pts===5){bc='badge-5';cl='⭐5';}
-        else if(pts===3){bc='badge-3';cl='✓3';}
-        else if(pts===1){bc='badge-1';cl='〜1';}
+        let bc='badge-0',cl='—';
+        if(p.pontos===5){bc='badge-5';cl='⭐5';}
+        else if(p.pontos===3){bc='badge-3';cl='✓3';}
+        else if(p.pontos===1){bc='badge-1';cl='〜1';}
         return `<div class="palpite-item">
           <span class="pi-participante">${partMap[p.participante_id]||'?'}</span>
           <span class="pi-placar">${p.gols_casa} × ${p.gols_fora}</span>
@@ -384,40 +399,35 @@ function renderPalpitesPub() {
       <div class="palpite-grid">${palpHtml}</div>
     </div>`;
   }).join('')||'<div class="empty">Nenhum jogo</div>';
-
-  return `<div class="page">
-    <div class="page-title"><i class="ti ti-target"></i> Palpites</div>
-    <div class="fase-tabs">${faseTabs}</div>${grupoTabs}${jogosHtml}
-  </div>`;
+  return `<div class="page"><div class="page-title"><i class="ti ti-target"></i> Palpites</div><div class="fase-tabs">${faseTabs}</div>${grupoTabs}${jogosHtml}</div>`;
 }
 
+// ---- LOGIN ----
 function renderLogin() {
   return `<div class="page login-wrap">
     <div class="login-card">
       <div class="login-logo">⚽</div>
       <div class="login-title">Área Administrativa</div>
-      <div class="login-sub">Digite a senha para acessar</div>
+      <div class="login-sub">Acesso restrito ao administrador</div>
       ${state.msg?`<div class="alert ${state.msg.err?'alert-error':'alert-success'}">${state.msg.txt}</div>`:''}
-      <div class="form-group" style="margin-bottom:.75rem">
-        <input type="password" id="admin-pass" placeholder="Senha" onkeydown="if(event.key==='Enter')loginAdmin()"/>
+      <div class="form-group" style="margin-bottom:.75rem;text-align:left">
+        <label>Senha</label>
+        <input type="password" id="admin-pass" placeholder="Digite a senha" onkeydown="if(event.key==='Enter')loginAdmin()"/>
       </div>
-      <button class="btn btn-primary" style="width:100%" onclick="loginAdmin()"><i class="ti ti-lock"></i> Entrar</button>
+      <button id="btn-login" class="btn btn-primary" style="width:100%" onclick="loginAdmin()">
+        <i class="ti ti-lock"></i> Entrar
+      </button>
     </div>
   </div>`;
 }
 
-function loginAdmin() {
-  const v = document.getElementById('admin-pass')?.value;
-  if (v===ADMIN_PASSWORD) { state.adminLogado=true; render(); }
-  else showMsg('Senha incorreta', true);
-}
-
+// ---- ADMIN ----
 function renderAdmin() {
-  const encerrados = state.jogos.filter(j=>j.encerrado).length;
-  const pendentes = state.jogos.filter(j=>!j.encerrado).length;
+  const encerrados=state.jogos.filter(j=>j.encerrado).length;
+  const pendentes=state.jogos.filter(j=>!j.encerrado).length;
   return `<div class="page">
     <div class="page-title"><i class="ti ti-settings"></i> Administração
-      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="state.adminLogado=false;render()"><i class="ti ti-logout"></i> Sair</button>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="logoutAdmin()"><i class="ti ti-logout"></i> Sair</button>
     </div>
     ${state.msg?`<div class="alert ${state.msg.err?'alert-error':'alert-success'}">${state.msg.txt}</div>`:''}
     <div class="stats-row">
@@ -439,7 +449,7 @@ function renderAdmin() {
     </div>
 
     <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border)"><span class="section-label" style="margin:0">Participantes cadastrados</span></div>
+      <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border)"><span class="section-label" style="margin:0">Participantes</span></div>
       <div class="scroll-x">
         <table class="tbl">
           <thead><tr><th>Nome</th><th>Campeão</th><th>Palpites</th><th></th></tr></thead>
@@ -460,7 +470,7 @@ function renderAdmin() {
       <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border)"><span class="section-label" style="margin:0">Registrar resultados</span></div>
       <div style="padding:1rem">
         <div class="fase-tabs">${Object.entries(FASES).map(([k,v])=>`<button class="fase-tab ${state.fase===k?'active':''}" onclick="state.fase='${k}';render()">${v}</button>`).join('')}</div>
-        ${state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem;">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:''}
+        ${state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:''}
         ${renderJogosAdmin()}
       </div>
     </div>
@@ -468,9 +478,9 @@ function renderAdmin() {
 }
 
 function renderJogosAdmin() {
-  const filtrados = state.fase==='grupo'
-    ? state.jogos.filter(j=>j.fase==='grupo' && j.grupo_id===(GRUPOS.indexOf(state.grupo)+1))
-    : state.jogos.filter(j=>j.fase===state.fase);
+  const filtrados=state.fase==='grupo'
+    ?state.jogos.filter(j=>j.fase==='grupo'&&j.grupo_id===(GRUPOS.indexOf(state.grupo)+1))
+    :state.jogos.filter(j=>j.fase===state.fase);
   return filtrados.map(j=>`
     <div class="jogo-card ${j.encerrado?'encerrado':''}">
       <div class="jogo-header">
@@ -490,23 +500,20 @@ function renderJogosAdmin() {
       </div>
       ${!j.encerrado
         ?`<div style="text-align:center;margin-top:.6rem"><button class="btn btn-primary btn-sm" onclick="salvarResultado(${j.id})"><i class="ti ti-check"></i> Salvar & Encerrar</button></div>`
-        :`<div style="text-align:center;margin-top:.4rem"><button class="btn btn-danger btn-sm" onclick="reabrirJogo(${j.id})"><i class="ti ti-refresh"></i> Reabrir jogo</button></div>`
-      }
+        :`<div style="text-align:center;margin-top:.4rem"><button class="btn btn-danger btn-sm" onclick="reabrirJogo(${j.id})"><i class="ti ti-refresh"></i> Reabrir jogo</button></div>`}
     </div>`).join('')||'<div class="empty">Nenhum jogo nesta fase</div>';
 }
 
+// ---- MODAL PALPITES ----
 function openPalpitesModal(partId) {
-  const part = state.participantes.find(p=>p.id===partId);
-  const palp = state.palpites.filter(p=>p.participante_id===partId);
-  const jogosDisponiveis = state.jogos.filter(j=>!j.encerrado);
-  const jogosOpts = jogosDisponiveis.map(j=>`<option value="${j.id}">[${j.numero}] ${j.time_casa} × ${j.time_fora}</option>`).join('');
-
+  const part=state.participantes.find(p=>p.id===partId);
+  const palp=state.palpites.filter(p=>p.participante_id===partId);
+  const jogosOpts=state.jogos.filter(j=>!j.encerrado).map(j=>`<option value="${j.id}">[${j.numero}] ${j.time_casa} × ${j.time_fora}</option>`).join('');
   document.getElementById('modal-palpites')?.remove();
-  const el = document.createElement('div');
-  el.className = 'modal-overlay';
-  el.id = 'modal-palpites';
-  el.onclick = e => { if(e.target===el) fecharModal(); };
-  el.innerHTML = `
+  const el=document.createElement('div');
+  el.className='modal-overlay'; el.id='modal-palpites';
+  el.onclick=e=>{if(e.target===el)fecharModal();};
+  el.innerHTML=`
     <div class="modal">
       <div class="modal-title"><i class="ti ti-target"></i> Palpites — ${part?.nome}</div>
       <div class="section-label">Adicionar palpite</div>
@@ -519,10 +526,9 @@ function openPalpitesModal(partId) {
         <button class="btn btn-primary btn-sm" style="align-self:flex-end" onclick="salvarPalpite('${partId}')"><i class="ti ti-plus"></i> Add</button>
       </div>
       <hr class="divider"/>
-      <div class="section-label">Palpites cadastrados (${palp.length})</div>
+      <div class="section-label">Cadastrados (${palp.length})</div>
       <div id="palpite-lista">
-        ${palp.length===0
-          ?'<div class="empty">Nenhum palpite ainda</div>'
+        ${palp.length===0?'<div class="empty">Nenhum palpite ainda</div>'
           :palp.map(p=>{
             const j=state.jogos.find(x=>x.id===p.jogo_id);
             return `<div class="palpite-item">
@@ -533,81 +539,71 @@ function openPalpitesModal(partId) {
             </div>`;
           }).join('')}
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" onclick="fecharModal()">Fechar</button>
-      </div>
+      <div class="modal-footer"><button class="btn btn-ghost" onclick="fecharModal()">Fechar</button></div>
     </div>`;
   document.body.appendChild(el);
 }
 
-function fecharModal() { document.getElementById('modal-palpites')?.remove(); }
+function fecharModal(){document.getElementById('modal-palpites')?.remove();}
 
-async function salvarPalpite(partId) {
-  const jogoId = parseInt(document.getElementById('mp-jogo')?.value);
-  const gc = parseInt(document.getElementById('mp-gc')?.value);
-  const gf = parseInt(document.getElementById('mp-gf')?.value);
-  if (!jogoId || isNaN(gc) || isNaN(gf)) { showMsg('Preencha todos os campos', true); return; }
-  const existe = state.palpites.find(p=>p.participante_id===partId && p.jogo_id===jogoId);
-  try {
-    if (existe) {
-      await api(`/rest/v1/palpites?id=eq.${existe.id}`, 'PATCH', { gols_casa:gc, gols_fora:gf });
-    } else {
-      await api('/rest/v1/palpites', 'POST', { participante_id:partId, jogo_id:jogoId, gols_casa:gc, gols_fora:gf });
-    }
-    fecharModal();
-    await loadAll();
-    showMsg('Palpite salvo!');
-    openPalpitesModal(partId);
-  } catch(e) { showMsg('Erro: '+e.message, true); }
+async function salvarPalpite(partId){
+  const jogoId=parseInt(document.getElementById('mp-jogo')?.value);
+  const gc=parseInt(document.getElementById('mp-gc')?.value);
+  const gf=parseInt(document.getElementById('mp-gf')?.value);
+  if(!jogoId||isNaN(gc)||isNaN(gf)){showMsg('Preencha todos os campos',true);return;}
+  const existe=state.palpites.find(p=>p.participante_id===partId&&p.jogo_id===jogoId);
+  try{
+    if(existe){await api(`/rest/v1/palpites?id=eq.${existe.id}`,'PATCH',{gols_casa:gc,gols_fora:gf});}
+    else{await api('/rest/v1/palpites','POST',{participante_id:partId,jogo_id:jogoId,gols_casa:gc,gols_fora:gf});}
+    fecharModal(); await loadAll(); showMsg('Palpite salvo!'); openPalpitesModal(partId);
+  }catch(e){showMsg('Erro: '+e.message,true);}
 }
 
-async function excluirPalpite(id, partId) {
-  if (!confirm('Remover este palpite?')) return;
-  try {
-    await api(`/rest/v1/palpites?id=eq.${id}`, 'DELETE');
-    fecharModal();
-    await loadAll();
-    showMsg('Palpite removido');
-    openPalpitesModal(partId);
-  } catch(e) { showMsg('Erro: '+e.message, true); }
+async function excluirPalpite(id,partId){
+  if(!confirm('Remover este palpite?'))return;
+  try{
+    await api(`/rest/v1/palpites?id=eq.${id}`,'DELETE');
+    fecharModal(); await loadAll(); showMsg('Palpite removido'); openPalpitesModal(partId);
+  }catch(e){showMsg('Erro: '+e.message,true);}
 }
 
-async function cadastrarPart() {
-  const nome = document.getElementById('np-nome')?.value?.trim();
-  const campeao = document.getElementById('np-campeao')?.value;
-  if (!nome) { showMsg('Informe o nome', true); return; }
-  try {
-    await api('/rest/v1/participantes', 'POST', { nome, palpite_campeao: campeao||null });
-    await loadAll();
-    showMsg('Participante cadastrado!');
+async function cadastrarPart(){
+  const nome=document.getElementById('np-nome')?.value?.trim();
+  const campeao=document.getElementById('np-campeao')?.value;
+  if(!nome){showMsg('Informe o nome',true);return;}
+  try{
+    await api('/rest/v1/participantes','POST',{nome,palpite_campeao:campeao||null});
+    await loadAll(); showMsg('Participante cadastrado!');
     document.getElementById('np-nome').value='';
     document.getElementById('np-campeao').value='';
-  } catch(e) { showMsg('Erro: '+e.message, true); }
+  }catch(e){showMsg('Erro: '+e.message,true);}
 }
 
-async function salvarResultado(jogoId) {
-  const gc = parseInt(document.getElementById('gc-'+jogoId)?.value);
-  const gf = parseInt(document.getElementById('gf-'+jogoId)?.value);
-  if (isNaN(gc) || isNaN(gf)) { showMsg('Informe o placar completo', true); return; }
-  if (!confirm('Encerrar este jogo? Os palpites serão pontuados.')) return;
-  try {
-    await api(`/rest/v1/jogos?id=eq.${jogoId}`, 'PATCH', { gols_casa:gc, gols_fora:gf, encerrado:true });
-    await loadAll();
-    showMsg('Resultado salvo e pontos computados!');
-  } catch(e) { showMsg('Erro: '+e.message, true); }
+async function salvarResultado(jogoId){
+  const gc=parseInt(document.getElementById('gc-'+jogoId)?.value);
+  const gf=parseInt(document.getElementById('gf-'+jogoId)?.value);
+  if(isNaN(gc)||isNaN(gf)){showMsg('Informe o placar completo',true);return;}
+  if(!confirm('Encerrar este jogo? Os palpites serão pontuados.'))return;
+  try{
+    await api(`/rest/v1/jogos?id=eq.${jogoId}`,'PATCH',{gols_casa:gc,gols_fora:gf,encerrado:true});
+    await loadAll(); showMsg('Resultado salvo e pontos computados!');
+  }catch(e){showMsg('Erro: '+e.message,true);}
 }
 
-async function reabrirJogo(jogoId) {
-  if (!confirm('Reabrir este jogo? Os pontos serão zerados.')) return;
-  try {
-    await api(`/rest/v1/jogos?id=eq.${jogoId}`, 'PATCH', { gols_casa:null, gols_fora:null, encerrado:false });
-    await api(`/rest/v1/palpites?jogo_id=eq.${jogoId}`, 'PATCH', { pontos:null });
-    await loadAll();
-    showMsg('Jogo reaberto!');
-  } catch(e) { showMsg('Erro: '+e.message, true); }
+async function reabrirJogo(jogoId){
+  if(!confirm('Reabrir este jogo? Os pontos serão zerados.'))return;
+  try{
+    await api(`/rest/v1/jogos?id=eq.${jogoId}`,'PATCH',{gols_casa:null,gols_fora:null,encerrado:false});
+    await api(`/rest/v1/palpites?jogo_id=eq.${jogoId}`,'PATCH',{pontos:null});
+    await loadAll(); showMsg('Jogo reaberto!');
+  }catch(e){showMsg('Erro: '+e.message,true);}
 }
 
-loadAll();
+// Verifica sessão existente ao carregar
+sb.auth.getSession().then(({data})=>{
+  if(data.session){state.session=data.session;state.adminLogado=true;}
+  loadAll();
+});
 </script>
 </body>
 </html>
