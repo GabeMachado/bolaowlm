@@ -207,7 +207,7 @@ let state = {
   tab:'ranking', adminLogado:false, session:null,
   jogos:[], participantes:[], palpites:[], ranking:[],
   loading:false, msg:null, fase:'grupo', grupo:'A',
-  modalPart:null
+  modalPart:null, campeaoOficial:null
 };
 
 async function api(path, method='GET', body=null) {
@@ -246,12 +246,15 @@ async function logoutAdmin() {
 async function loadAll() {
   state.loading=true; render();
   try {
-    const [j,p,pa] = await Promise.all([
+    const [j,p,pa,cfg] = await Promise.all([
       api('/rest/v1/jogos?select=*&order=numero'),
       api('/rest/v1/participantes?select=*&order=nome'),
-      api('/rest/v1/palpites?select=*')
+      api('/rest/v1/palpites?select=*'),
+      api('/rest/v1/config?select=*')
     ]);
     state.jogos=j||[]; state.participantes=p||[]; state.palpites=pa||[];
+    const cfgCampeao = (cfg||[]).find(c=>c.chave==='campeao_oficial');
+    state.campeaoOficial = cfgCampeao?.valor || null;
     computeRanking();
   } catch(e) { showMsg('Erro ao carregar: '+e.message,true); }
   state.loading=false; render();
@@ -260,13 +263,22 @@ async function loadAll() {
 function computeRanking() {
   const map={};
   for (const p of state.participantes)
-    map[p.id]={id:p.id,nome:p.nome,campeao:p.palpite_campeao||'—',pts:0,exatos:0,resultados:0,parciais:0};
+    map[p.id]={id:p.id,nome:p.nome,campeao:p.palpite_campeao||'—',pts:0,exatos:0,resultados:0,parciais:0,acertouCampeao:false};
   for (const pa of state.palpites) {
     if (!map[pa.participante_id]) continue;
     const m=map[pa.participante_id];
     if(pa.pontos===5){m.pts+=5;m.exatos++;}
     else if(pa.pontos===3){m.pts+=3;m.resultados++;}
     else if(pa.pontos===1){m.pts+=1;m.parciais++;}
+  }
+  // +20 pts para quem acertou o campeão
+  if (state.campeaoOficial) {
+    for (const m of Object.values(map)) {
+      if (m.campeao === state.campeaoOficial) {
+        m.pts += 20;
+        m.acertouCampeao = true;
+      }
+    }
   }
   state.ranking=Object.values(map).sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos||b.resultados-a.resultados||b.parciais-a.parciais);
 }
@@ -305,17 +317,21 @@ function renderRanking() {
   let podio='';
   if(r.length>=1){
     const [p1,p2,p3]=[r[0],r[1]||null,r[2]||null];
+    const sub=(p)=>`${p.exatos}⭐ ${p.resultados}✓ ${p.parciais}〜${p.acertouCampeao?' 🏆+20':''}`;
     podio=`<div class="podio">
-      ${p2?`<div class="podio-card p2"><div class="podio-pos">🥈</div><div class="podio-nome">${p2.nome}</div><div class="podio-pts">${p2.pts} pts</div><div class="podio-sub">${p2.exatos}⭐ ${p2.resultados}✓ ${p2.parciais}〜</div></div>`:'<div></div>'}
-      <div class="podio-card p1"><div class="podio-pos">🏆</div><div class="podio-nome">${p1.nome}</div><div class="podio-pts">${p1.pts} pts</div><div class="podio-sub">${p1.exatos}⭐ ${p1.resultados}✓ ${p1.parciais}〜</div></div>
-      ${p3?`<div class="podio-card p3"><div class="podio-pos">🥉</div><div class="podio-nome">${p3.nome}</div><div class="podio-pts">${p3.pts} pts</div><div class="podio-sub">${p3.exatos}⭐ ${p3.resultados}✓ ${p3.parciais}〜</div></div>`:'<div></div>'}
+      ${p2?`<div class="podio-card p2"><div class="podio-pos">🥈</div><div class="podio-nome">${p2.nome}</div><div class="podio-pts">${p2.pts} pts</div><div class="podio-sub">${sub(p2)}</div></div>`:'<div></div>'}
+      <div class="podio-card p1"><div class="podio-pos">🏆</div><div class="podio-nome">${p1.nome}</div><div class="podio-pts">${p1.pts} pts</div><div class="podio-sub">${sub(p1)}</div></div>
+      ${p3?`<div class="podio-card p3"><div class="podio-pos">🥉</div><div class="podio-nome">${p3.nome}</div><div class="podio-pts">${p3.pts} pts</div><div class="podio-sub">${sub(p3)}</div></div>`:'<div></div>'}
     </div>`;
   }
   const rows=r.map((p,i)=>{
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const campeaoBadge = p.acertouCampeao
+      ? `<span class="campeao-badge" style="margin-top:3px;background:rgba(231,139,46,.3)">🏆 ${p.campeao} +20</span>`
+      : `<span class="campeao-badge" style="margin-top:3px">⭐ ${p.campeao}</span>`;
     return `<tr>
       <td style="font-weight:700;font-size:15px;color:var(--orange)">${medal||i+1}</td>
-      <td class="nome-cell">${p.nome}<br><span class="campeao-badge" style="margin-top:3px">⭐ ${p.campeao}</span></td>
+      <td class="nome-cell">${p.nome}<br>${campeaoBadge}</td>
       <td style="color:var(--orange);font-weight:700;font-size:15px">${p.pts}</td>
       <td><span class="badge badge-5">⭐ ${p.exatos}</span></td>
       <td><span class="badge badge-3">✓ ${p.resultados}</span></td>
@@ -463,6 +479,24 @@ function renderAdmin() {
         </div>
         <button class="btn btn-primary" onclick="cadastrarPart()"><i class="ti ti-user-plus"></i> Cadastrar</button>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="section-label">Campeão da Copa</div>
+      ${state.campeaoOficial
+        ? `<div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+            <span class="campeao-badge" style="font-size:13px;padding:6px 12px">🏆 ${state.campeaoOficial}</span>
+            <span style="font-size:12px;color:var(--green)">+20 pts aplicados a quem acertou</span>
+            <button class="btn btn-danger btn-sm" onclick="limparCampeao()"><i class="ti ti-x"></i> Remover</button>
+           </div>`
+        : `<div class="form-row">
+            <div class="form-group">
+              <label>Definir campeão oficial</label>
+              <select id="cfg-campeao"><option value="">Escolher quando a copa terminar...</option>${CAMPEOES.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+            </div>
+            <button class="btn btn-primary" onclick="salvarCampeao()"><i class="ti ti-trophy"></i> Confirmar campeão</button>
+           </div>`
+      }
     </div>
 
     <div class="card" style="padding:0;overflow:hidden">
@@ -708,6 +742,30 @@ function fecharModal(){
   document.getElementById('modal-palpites')?.remove();
   state.modalFase=null; state.modalGrupo=null;
   render(); // atualiza contadores na tabela
+}
+
+async function salvarCampeao() {
+  const val = document.getElementById('cfg-campeao')?.value;
+  if (!val) { showMsg('Escolha o campeão', true); return; }
+  if (!confirm(`Confirmar ${val} como campeão da Copa 2026? Os +20 pts serão aplicados imediatamente.`)) return;
+  try {
+    await api('/rest/v1/config?chave=eq.campeao_oficial', 'PATCH', {valor: val});
+    state.campeaoOficial = val;
+    computeRanking();
+    showMsg(`🏆 ${val} definido como campeão! +20 pts aplicados.`);
+    render();
+  } catch(e) { showMsg('Erro: '+e.message, true); }
+}
+
+async function limparCampeao() {
+  if (!confirm('Remover o campeão oficial? Os +20 pts serão retirados.')) return;
+  try {
+    await api('/rest/v1/config?chave=eq.campeao_oficial', 'PATCH', {valor: null});
+    state.campeaoOficial = null;
+    computeRanking();
+    showMsg('Campeão removido.');
+    render();
+  } catch(e) { showMsg('Erro: '+e.message, true); }
 }
 
 async function cadastrarPart() {
