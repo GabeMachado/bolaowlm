@@ -211,7 +211,11 @@ let state = {
 };
 
 async function api(path, method='GET', body=null) {
-  const opts = { method, headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''} };
+  // Leitura usa anon key; escrita exige token da sessão autenticada
+  const isWrite = method !== 'GET';
+  if (isWrite && !state.session?.access_token) throw new Error('Não autenticado');
+  const token = isWrite ? state.session.access_token : SUPABASE_KEY;
+  const opts = { method, headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''} };
   if (body) opts.body = JSON.stringify(body);
   const r = await fetch(SUPABASE_URL+path, opts);
   if (!r.ok && r.status!==204) { const e=await r.json(); throw new Error(e.message||'Erro'); }
@@ -495,6 +499,7 @@ function renderJogosAdmin() {
   const filtrados=state.fase==='grupo'
     ?state.jogos.filter(j=>j.fase==='grupo'&&j.grupo_id===(GRUPOS.indexOf(state.grupo)+1))
     :state.jogos.filter(j=>j.fase===state.fase);
+  const isElim = state.fase !== 'grupo';
   return filtrados.map(j=>`
     <div class="jogo-card ${j.encerrado?'encerrado':''}">
       <div class="jogo-header">
@@ -503,19 +508,54 @@ function renderJogosAdmin() {
         <span style="flex:1"></span>
         ${j.encerrado?'<span class="badge badge-enc">✓ Encerrado</span>':'<span class="badge badge-pend">Pendente</span>'}
       </div>
+      ${isElim ? `
+      <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;margin-bottom:.5rem">
+        <input id="tc-${j.id}" value="${j.time_casa}" placeholder="Time casa"
+          style="text-align:right;font-weight:600;font-size:13px;padding:5px 8px"
+          ${j.encerrado?'disabled':''}>
+        <span class="score-sep" style="text-align:center">vs</span>
+        <input id="tf-${j.id}" value="${j.time_fora}" placeholder="Time fora"
+          style="font-weight:600;font-size:13px;padding:5px 8px"
+          ${j.encerrado?'disabled':''}>
+      </div>
+      ${!j.encerrado?`<div style="text-align:center;margin-bottom:.5rem">
+        <button class="btn btn-ghost btn-sm" onclick="salvarTimes(${j.id})"><i class="ti ti-users"></i> Atualizar times</button>
+      </div>`:''}
+      ` : `
       <div class="match-row">
         <div class="match-team right">${j.time_casa}</div>
+        <div class="match-score" style="opacity:.4"><span class="score-sep" style="font-size:13px">vs</span></div>
+        <div class="match-team">${j.time_fora}</div>
+      </div>
+      `}
+      <div class="match-row" style="margin-top:${isElim?'0':'.25rem'}">
+        <div style="flex:1"></div>
         <div class="match-score">
           <input class="placar-input-sm" type="number" min="0" max="99" id="gc-${j.id}" value="${j.gols_casa??''}" placeholder="—" ${j.encerrado?'disabled':''}>
           <span class="score-sep">×</span>
           <input class="placar-input-sm" type="number" min="0" max="99" id="gf-${j.id}" value="${j.gols_fora??''}" placeholder="—" ${j.encerrado?'disabled':''}>
         </div>
-        <div class="match-team">${j.time_fora}</div>
+        <div style="flex:1"></div>
       </div>
-      ${!j.encerrado
-        ?`<div style="text-align:center;margin-top:.6rem"><button class="btn btn-primary btn-sm" onclick="salvarResultado(${j.id})"><i class="ti ti-check"></i> Salvar & Encerrar</button></div>`
-        :`<div style="text-align:center;margin-top:.4rem"><button class="btn btn-danger btn-sm" onclick="reabrirJogo(${j.id})"><i class="ti ti-refresh"></i> Reabrir</button></div>`}
+      <div style="text-align:center;margin-top:.5rem">
+        ${!j.encerrado
+          ?`<button class="btn btn-primary btn-sm" onclick="salvarResultado(${j.id})"><i class="ti ti-check"></i> Salvar & Encerrar</button>`
+          :`<button class="btn btn-danger btn-sm" onclick="reabrirJogo(${j.id})"><i class="ti ti-refresh"></i> Reabrir</button>`}
+      </div>
     </div>`).join('')||'<div class="empty">Nenhum jogo nesta fase</div>';
+}
+
+async function salvarTimes(jogoId) {
+  const tc = document.getElementById('tc-'+jogoId)?.value?.trim();
+  const tf = document.getElementById('tf-'+jogoId)?.value?.trim();
+  if (!tc||!tf) { showMsg('Informe os dois times',true); return; }
+  try {
+    await api(`/rest/v1/jogos?id=eq.${jogoId}`,'PATCH',{time_casa:tc,time_fora:tf});
+    const j = state.jogos.find(x=>x.id===jogoId);
+    if (j) { j.time_casa=tc; j.time_fora=tf; }
+    showMsg('Times atualizados!');
+    render();
+  } catch(e) { showMsg('Erro: '+e.message,true); }
 }
 
 // ---- MODAL PALPITES (novo estilo) ----
