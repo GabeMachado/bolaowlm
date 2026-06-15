@@ -33,13 +33,25 @@
   body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; font-size: 14px; min-height: 100vh; }
 
   nav { background: var(--bg2); border-bottom: 1px solid var(--border2); padding: 0 1rem; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
-  .nav-brand { font-size: 15px; font-weight: 700; color: var(--orange); padding: 10px 0; margin-right: 1.25rem; display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+  .nav-brand { font-size: 15px; font-weight: 700; color: var(--orange); padding: 10px 0; margin-right: 1.25rem; display: flex; align-items: center; gap: 10px; white-space: nowrap; justify-content: center; }
   .nav-logo { height: 32px; width: auto; display: block; filter: brightness(0) invert(1); opacity: .85; }
   .nav-divider { width: 1px; height: 24px; background: var(--border2); }
   .nav-tabs { display: flex; flex: 1; overflow-x: auto; }
   .nav-tab { padding: 13px 13px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .15s; background: none; border-top: none; border-left: none; border-right: none; }
   .nav-tab:hover { color: var(--text); }
   .nav-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+  @media (max-width: 600px) {
+    nav { flex-wrap: wrap; padding: 0 .75rem; }
+    .nav-brand { width: 100%; padding: 10px 0 6px; margin-right: 0; border-bottom: 1px solid var(--border); }
+    .nav-tabs { width: 100%; }
+    .nav-tab { flex: 1; text-align: center; padding: 10px 6px; font-size: 12px; justify-content: center; display: flex; align-items: center; gap: 4px; }
+    .nav-logo { height: 24px; }
+    .nav-divider { display: none; }
+    .admin-badge { display: none; }
+  }
+  .admin-badge { font-size: 10px; background: var(--orange); color: #000; padding: 2px 6px; border-radius: 20px; margin-left: 5px; font-weight: 700; }
+
+
   .admin-badge { font-size: 10px; background: var(--orange); color: #000; padding: 2px 6px; border-radius: 20px; margin-left: 5px; font-weight: 700; }
 
   .page { padding: 1.25rem 1rem; max-width: 960px; margin: 0 auto; width: 100%; }
@@ -162,6 +174,11 @@
   .podio-sub { font-size: 11px; color: var(--text3); }
 
   .campeao-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--orange); background: rgba(231,139,46,.12); padding: 2px 7px; border-radius: 20px; }
+  .var-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; white-space: nowrap; min-width: 36px; justify-content: center; }
+  .var-subiu { background: rgba(34,197,94,.15); color: #22c55e; }
+  .var-caiu { background: rgba(239,68,68,.15); color: #ef4444; }
+  .var-manteve { background: rgba(231,139,46,.15); color: var(--orange); }
+  .var-novo { background: var(--surface2); color: var(--text3); }
   .divider { border: none; border-top: 1px solid var(--border); margin: .9rem 0; }
   .empty { text-align: center; padding: 1.5rem; color: var(--text3); font-size: 13px; }
   .spin { animation: spin 1s linear infinite; display: inline-block; }
@@ -169,6 +186,29 @@
   .scroll-x { overflow-x: auto; }
   .palpites-pub-grid { display: grid; gap: .5rem; }
   .pub-palpite-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg3); border-radius: 8px; padding: .5rem .75rem; gap: .5rem; }
+
+  /* ACCORDION PALPITES */
+  .jogo-accordion { cursor: pointer; user-select: none; }
+  .jogo-accordion-toggle { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: .6rem; padding: .4rem; border-radius: 8px; font-size: 11px; font-weight: 600; color: var(--text3); background: var(--bg3); border: none; width: 100%; cursor: pointer; transition: all .15s; font-family: 'Inter', system-ui, sans-serif; }
+  .jogo-accordion-toggle:hover { color: var(--text2); background: var(--surface2); }
+  .jogo-accordion-toggle i { transition: transform .2s; font-size: 14px; }
+  .jogo-accordion-toggle.open i { transform: rotate(180deg); }
+  .jogo-palpites-list { margin-top: .5rem; display: flex; flex-direction: column; gap: .35rem; }
+  .jp-item { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .5rem; padding: .45rem .7rem; border-radius: 8px; font-size: 12px; }
+  .jp-item.acerto-5 { background: rgba(231,139,46,.12); border: 1px solid rgba(231,139,46,.3); }
+  .jp-item.acerto-3 { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+  .jp-item.acerto-1 { background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); }
+  .jp-item.acerto-0 { background: var(--bg3); border: 1px solid var(--border); }
+  .jp-item.sem-resultado { background: var(--bg3); border: 1px solid var(--border); }
+  .jp-nome { font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .jp-placar { font-size: 14px; font-weight: 800; color: var(--text2); white-space: nowrap; }
+  .jp-placar.exato { color: var(--orange); }
+  .jp-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
+  .jp-badge.b5 { background: rgba(231,139,46,.2); color: var(--orange); }
+  .jp-badge.b3 { background: rgba(34,197,94,.15); color: #22c55e; }
+  .jp-badge.b1 { background: rgba(59,130,246,.15); color: #3b82f6; }
+  .jp-badge.b0 { background: var(--surface2); color: var(--text3); }
+  .jp-badge.bwait { background: var(--surface2); color: var(--text3); }
 
   /* PLACAR ADMIN INPUT */
   .placar-input-sm { width: 40px !important; text-align: center; font-size: 15px; font-weight: 700; padding: 4px !important; }
@@ -216,7 +256,7 @@ let state = {
   tab:'ranking', adminLogado:false, session:null,
   jogos:[], participantes:[], palpites:[], ranking:[],
   loading:false, msg:null, fase:'grupo', grupo:'A',
-  modalPart:null, campeaoOficial:null
+  modalPart:null, campeaoOficial:null, historicoRanking:[]
 };
 
 async function api(path, method='GET', body=null) {
@@ -247,6 +287,31 @@ async function loginAdmin() {
   }
 }
 
+async function sincronizarResultados() {
+  const btn = document.getElementById('btn-sync');
+  if (btn) { btn.disabled=true; btn.innerHTML='<i class="ti ti-loader spin"></i> Sincronizando...'; }
+  try {
+    const r = await fetch('https://gqvjqadugnnhthboxwfb.supabase.co/functions/v1/sync-resultados', {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer '+state.session.access_token }
+    });
+    const data = await r.json();
+    if (data.ok) {
+      await loadAll();
+      const msg = data.atualizados > 0
+        ? `✓ ${data.atualizados} jogo(s) atualizado(s) automaticamente!`
+        : `Nenhum jogo novo para atualizar (${data.jogos_finalizados_api} finalizados na API)`;
+      showMsg(msg);
+    } else {
+      showMsg('Erro na API: '+(data.error||data.detail||'desconhecido'), true);
+    }
+  } catch(e) {
+    showMsg('Erro ao sincronizar: '+e.message, true);
+  } finally {
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="ti ti-cloud-download"></i> Sincronizar agora'; }
+  }
+}
+
 async function logoutAdmin() {
   await sb.auth.signOut();
   state.adminLogado=false; state.session=null; render();
@@ -255,13 +320,15 @@ async function logoutAdmin() {
 async function loadAll() {
   state.loading=true; render();
   try {
-    const [j,p,pa,cfg] = await Promise.all([
+    const [j,p,pa,cfg,hist] = await Promise.all([
       api('/rest/v1/jogos?select=*&order=numero'),
       api('/rest/v1/participantes?select=*&order=nome'),
       api('/rest/v1/palpites?select=*'),
-      api('/rest/v1/config?select=*')
+      api('/rest/v1/config?select=*'),
+      api('/rest/v1/ranking_historico?select=*&order=snapshot_at.desc&limit=500')
     ]);
     state.jogos=j||[]; state.participantes=p||[]; state.palpites=pa||[];
+    state.historicoRanking=hist||[];
     const cfgCampeao = (cfg||[]).find(c=>c.chave==='campeao_oficial');
     state.campeaoOficial = cfgCampeao?.valor || null;
     computeRanking();
@@ -280,16 +347,66 @@ function computeRanking() {
     else if(pa.pontos===3){m.pts+=3;m.resultados++;}
     else if(pa.pontos===1){m.pts+=1;m.parciais++;}
   }
-  // +20 pts para quem acertou o campeão
   if (state.campeaoOficial) {
     for (const m of Object.values(map)) {
-      if (m.campeao === state.campeaoOficial) {
-        m.pts += 20;
-        m.acertouCampeao = true;
-      }
+      if (m.campeao === state.campeaoOficial) { m.pts+=20; m.acertouCampeao=true; }
     }
   }
   state.ranking=Object.values(map).sort((a,b)=>b.pts-a.pts||b.exatos-a.exatos||b.resultados-a.resultados||b.parciais-a.parciais);
+
+  // Buscar posição anterior do histórico (snapshot mais recente)
+  // Agrupa por snapshot_at truncado ao segundo para evitar divergência de microssegundos
+  const snapGroups = {};
+  for (const h of state.historicoRanking) {
+    const key = h.snapshot_at ? h.snapshot_at.substring(0,19) : null;
+    if (!key) continue;
+    if (!snapGroups[key]) snapGroups[key] = [];
+    snapGroups[key].push(h);
+  }
+  const snapKeys = Object.keys(snapGroups).sort().reverse();
+  const posAnteriorMap = {};
+  if (snapKeys.length > 0) {
+    for (const h of snapGroups[snapKeys[0]]) {
+      posAnteriorMap[h.participante_id] = h.posicao;
+    }
+  }
+  // Aplicar variação de posição
+  state.ranking.forEach((p,i)=>{
+    const posAtual = i+1;
+    const posAnt = posAnteriorMap[p.id];
+    if (posAnt === undefined) { p.variacao = null; }
+    else if (posAtual < posAnt) { p.variacao = 'subiu'; p.variacaoN = posAnt - posAtual; }
+    else if (posAtual > posAnt) { p.variacao = 'caiu'; p.variacaoN = posAtual - posAnt; }
+    else { p.variacao = 'manteve'; p.variacaoN = 0; }
+  });
+}
+
+async function salvarSnapshotRanking() {
+  if (state.ranking.length === 0) { showMsg('Nenhum participante para salvar', true); return; }
+  try {
+    const ts = new Date().toISOString();
+    // Supabase aceita array direto no POST com Prefer: return=minimal
+    const registros = state.ranking.map((p,i)=>({
+      participante_id: p.id,
+      posicao: i+1,
+      pontos: p.pts,
+      snapshot_at: ts
+    }));
+    const opts = {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + state.session.access_token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(registros)
+    };
+    const r = await fetch(SUPABASE_URL + '/rest/v1/ranking_historico', opts);
+    if (!r.ok) { const e=await r.json(); throw new Error(e.message||'Erro'); }
+    showMsg('📸 Snapshot do ranking salvo!');
+    await loadAll();
+  } catch(e) { showMsg('Erro ao salvar snapshot: '+e.message, true); }
 }
 
 function showMsg(txt,err=false) {
@@ -310,6 +427,7 @@ function render() {
       <i class="ti ${t.icon}" aria-hidden="true"></i> ${t.label}
       ${t.badge?'<span class="admin-badge">ADM</span>':''}
     </button>`).join('');
+
 
   const el=document.getElementById('main-content');
   if(state.loading){el.innerHTML='<div class="page"><div class="empty"><i class="ti ti-loader spin" style="font-size:24px"></i><br>Carregando...</div></div>';return;}
@@ -337,8 +455,14 @@ function renderRanking() {
     const campeaoBadge = p.acertouCampeao
       ? `<span class="campeao-badge" style="margin-top:3px;background:rgba(231,139,46,.3)">🏆 ${p.campeao} +20</span>`
       : `<span class="campeao-badge" style="margin-top:3px">⭐ ${p.campeao}</span>`;
+    let varBadge = '';
+    if (p.variacao === 'subiu')    varBadge = `<span class="var-badge var-subiu">▲ ${p.variacaoN}</span>`;
+    else if (p.variacao === 'caiu')     varBadge = `<span class="var-badge var-caiu">▼ ${p.variacaoN}</span>`;
+    else if (p.variacao === 'manteve') varBadge = `<span class="var-badge var-manteve">■</span>`;
+    else                                varBadge = `<span class="var-badge var-novo">—</span>`;
     return `<tr>
       <td style="font-weight:700;font-size:15px;color:var(--orange)">${medal||i+1}</td>
+      <td>${varBadge}</td>
       <td class="nome-cell">${p.nome}<br>${campeaoBadge}</td>
       <td style="color:var(--orange);font-weight:700;font-size:15px">${p.pts}</td>
       <td><span class="badge badge-5">⭐ ${p.exatos}</span></td>
@@ -363,7 +487,7 @@ function renderRanking() {
       </div>
       <div class="scroll-x">
         <table class="tbl">
-          <thead><tr><th>#</th><th>Participante</th><th>Pts</th><th>Exatos</th><th>Resultado</th><th>Parcial</th></tr></thead>
+          <thead><tr><th>#</th><th></th><th>Participante</th><th>Pts</th><th>Exatos</th><th>Resultado</th><th>Parcial</th></tr></thead>
           <tbody>${rows||'<tr><td colspan="6" class="empty">Nenhum participante</td></tr>'}</tbody>
         </table>
       </div>
@@ -379,10 +503,53 @@ function renderJogos() {
     :state.jogos.filter(j=>j.fase===state.fase);
   const faseTabs=Object.entries(FASES).map(([k,v])=>`<button class="fase-tab ${state.fase===k?'active':''}" onclick="state.fase='${k}';render()">${v}</button>`).join('');
   const grupoTabs=state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:'';
+  const partMap={};
+  for (const p of state.participantes) partMap[p.id]=p.nome;
+
   const cards=filtrados.map(j=>{
     const placar=j.encerrado
       ?`<span class="score-num">${j.gols_casa}</span><span class="score-sep">×</span><span class="score-num">${j.gols_fora}</span>`
       :`<span class="score-sep" style="font-size:13px;color:var(--text3)">vs</span>`;
+
+    // Montar lista de palpites (accordion) — só para jogos encerrados
+    let accordionHtml = '';
+    if (j.encerrado) {
+      const palps = state.palpites.filter(p=>p.jogo_id===j.id);
+      // Ordenar: exatos primeiro, depois resultado, parcial, zero
+      const ordem = {5:0, 3:1, 1:2, 0:3, null:4};
+      palps.sort((a,b)=>(ordem[a.pontos]??4)-(ordem[b.pontos]??4));
+
+      const totalPalps = palps.length;
+      const exatos = palps.filter(p=>p.pontos===5).length;
+
+      const palpItems = palps.map(p=>{
+        const pts = p.pontos;
+        let cls='acerto-0', badgeCls='b0', badgeTxt='Erro';
+        if(pts===5){cls='acerto-5';badgeCls='b5';badgeTxt='⭐ Exato';}
+        else if(pts===3){cls='acerto-3';badgeCls='b3';badgeTxt='✓ Resultado';}
+        else if(pts===1){cls='acerto-1';badgeCls='b1';badgeTxt='〜 Parcial';}
+        const placarCls = pts===5 ? 'exato' : '';
+        return `<div class="jp-item ${cls}">
+          <span class="jp-nome">${partMap[p.participante_id]||'?'}</span>
+          <span class="jp-placar ${placarCls}">${p.gols_casa} × ${p.gols_fora}</span>
+          <span class="jp-badge ${badgeCls}">${badgeTxt}</span>
+        </div>`;
+      }).join('') || '<div style="font-size:12px;color:var(--text3);padding:.25rem 0">Nenhum palpite</div>';
+
+      const resumo = totalPalps > 0
+        ? `${totalPalps} palpite${totalPalps>1?'s':''} · ${exatos} exato${exatos!==1?'s':''}`
+        : 'Sem palpites';
+
+      accordionHtml = `
+        <button class="jogo-accordion-toggle" id="toggle-${j.id}" onclick="toggleAccordion(${j.id})">
+          <i class="ti ti-chevron-down"></i>
+          <span>${resumo}</span>
+        </button>
+        <div class="jogo-palpites-list" id="acc-${j.id}" style="display:none">
+          ${palpItems}
+        </div>`;
+    }
+
     return `<div class="jogo-card ${j.encerrado?'encerrado':''}">
       <div class="jogo-header">
         <span class="jogo-num">Jogo ${j.numero}</span>
@@ -396,9 +563,20 @@ function renderJogos() {
         <div class="match-score">${placar}</div>
         <div class="match-team">${j.time_fora}</div>
       </div>
+      ${accordionHtml}
     </div>`;
   }).join('')||'<div class="empty">Nenhum jogo</div>';
   return `<div class="page"><div class="page-title"><i class="ti ti-ball-football"></i> Tabela de Jogos</div><div class="fase-tabs">${faseTabs}</div>${grupoTabs}${cards}</div>`;
+}
+
+function toggleAccordion(jogoId) {
+  const list = document.getElementById('acc-'+jogoId);
+  const btn  = document.getElementById('toggle-'+jogoId);
+  if (!list || !btn) return;
+  const isOpen = list.style.display !== 'none';
+  list.style.display = isOpen ? 'none' : 'flex';
+  list.style.flexDirection = 'column';
+  btn.classList.toggle('open', !isOpen);
 }
 
 // ---- PALPITES PÚBLICO ----
@@ -471,6 +649,7 @@ function renderAdmin() {
       <button class="btn btn-ghost btn-sm" style="margin-left:auto" onclick="logoutAdmin()"><i class="ti ti-logout"></i> Sair</button>
     </div>
     ${state.msg?`<div class="alert ${state.msg.err?'alert-error':'alert-success'}">${state.msg.txt}</div>`:''}
+
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num">${state.participantes.length}</div><div class="stat-lbl">Participantes</div></div>
       <div class="stat-card"><div class="stat-num">${state.palpites.length}</div><div class="stat-lbl">Palpites</div></div>
@@ -527,7 +706,9 @@ function renderAdmin() {
     </div>
 
     <div class="card" style="padding:0;overflow:hidden">
-      <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border)"><span class="section-label" style="margin:0">Registrar resultados</span></div>
+      <div style="padding:.75rem 1.25rem;border-bottom:1px solid var(--border)">
+        <span class="section-label" style="margin:0">Registrar resultados</span>
+      </div>
       <div style="padding:1rem">
         <div class="fase-tabs">${Object.entries(FASES).map(([k,v])=>`<button class="fase-tab ${state.fase===k?'active':''}" onclick="state.fase='${k}';render()">${v}</button>`).join('')}</div>
         ${state.fase==='grupo'?`<div style="display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.9rem">${GRUPOS.map(g=>`<button class="fase-tab ${state.grupo===g?'active':''}" onclick="state.grupo='${g}';render()">Grupo ${g}</button>`).join('')}</div>`:''}
@@ -794,9 +975,35 @@ async function salvarResultado(jogoId){
   if(isNaN(gc)||isNaN(gf)){showMsg('Informe o placar completo',true);return;}
   if(!confirm('Encerrar este jogo? Os palpites serão pontuados.'))return;
   try{
+    // Salva snapshot do ranking ANTES de encerrar, para registrar posições atuais
+    await _tirarSnapshotSilencioso();
     await api(`/rest/v1/jogos?id=eq.${jogoId}`,'PATCH',{gols_casa:gc,gols_fora:gf,encerrado:true});
     await loadAll(); showMsg('Resultado salvo e pontos computados!');
   }catch(e){showMsg('Erro: '+e.message,true);}
+}
+
+async function _tirarSnapshotSilencioso(){
+  if(state.ranking.length===0) return;
+  try{
+    const ts = new Date().toISOString();
+    const registros = state.ranking.map((p,i)=>({
+      participante_id: p.id,
+      posicao: i+1,
+      pontos: p.pts,
+      snapshot_at: ts
+    }));
+    const opts = {
+      method:'POST',
+      headers:{
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer '+state.session.access_token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify(registros)
+    };
+    await fetch(SUPABASE_URL+'/rest/v1/ranking_historico', opts);
+  } catch(e){ console.warn('Snapshot silencioso falhou:', e.message); }
 }
 
 async function reabrirJogo(jogoId){
