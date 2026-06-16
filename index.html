@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Bolão Copa 2026</title>
+<title>Bolão Contax Copa 2026</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"/>
@@ -11,15 +11,15 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --orange: #E78B2E;
-    --orange-light: #f5a855;
+    --orange: #ff0030;
+    --orange-light: #ff4d6a;
     --bg: #030710;
     --bg2: #0a1020;
     --bg3: #111827;
     --surface: #1a2235;
     --surface2: #232e42;
-    --border: rgba(231,139,46,0.18);
-    --border2: rgba(231,139,46,0.35);
+    --border: rgba(255,0,48,0.18);
+    --border2: rgba(255,0,48,0.35);
     --text: #f0f4ff;
     --text2: #8ea0bc;
     --text3: #5a6b82;
@@ -34,7 +34,7 @@
 
   nav { background: var(--bg2); border-bottom: 1px solid var(--border2); padding: 0 1rem; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
   .nav-brand { font-size: 15px; font-weight: 700; color: var(--orange); padding: 10px 0; margin-right: 1.25rem; display: flex; align-items: center; gap: 10px; white-space: nowrap; justify-content: center; }
-  .nav-logo { height: 32px; width: auto; display: block; filter: brightness(0) invert(1); opacity: .85; }
+  .nav-logo { height: 32px; width: auto; display: block;  }
   .nav-divider { width: 1px; height: 24px; background: var(--border2); }
   .nav-tabs { display: flex; flex: 1; overflow-x: auto; }
   .nav-tab { padding: 13px 13px; font-size: 13px; font-weight: 500; color: var(--text2); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; transition: all .15s; background: none; border-top: none; border-left: none; border-right: none; }
@@ -81,13 +81,13 @@
   .btn-xs { padding: 3px 8px; font-size: 11px; border-radius: 6px; }
 
   .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-  .badge-5 { background: rgba(231,139,46,.2); color: var(--orange); }
+  .badge-5 { background: rgba(255,0,48,.2); color: var(--orange); }
   .badge-3 { background: rgba(34,197,94,.15); color: var(--green); }
   .badge-1 { background: rgba(59,130,246,.15); color: var(--blue); }
   .badge-0 { background: var(--surface2); color: var(--text3); }
   .badge-enc { background: rgba(34,197,94,.15); color: var(--green); }
   .badge-pend { background: rgba(234,179,8,.15); color: var(--yellow); }
-  .badge-ok { background: rgba(231,139,46,.15); color: var(--orange); }
+  .badge-ok { background: rgba(255,0,48,.15); color: var(--orange); }
 
   .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
   .tbl th { padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 700; color: var(--text3); border-bottom: 1px solid var(--border); text-transform: uppercase; letter-spacing: .06em; }
@@ -101,7 +101,7 @@
   .jogo-card.encerrado { border-color: rgba(34,197,94,.2); }
   .jogo-header { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; flex-wrap: wrap; }
   .jogo-num { font-size: 11px; font-weight: 700; color: var(--text3); }
-  .jogo-fase { font-size: 10px; color: var(--orange); font-weight: 700; background: rgba(231,139,46,.1); padding: 2px 6px; border-radius: 20px; text-transform: uppercase; }
+  .jogo-fase { font-size: 10px; color: var(--orange); font-weight: 700; background: rgba(255,0,48,.1); padding: 2px 6px; border-radius: 20px; text-transform: uppercase; }
   .jogo-grupo { font-size: 10px; color: var(--text3); }
   .match-row { display: flex; align-items: center; gap: .6rem; }
   .match-team { flex: 1; font-weight: 600; font-size: 13px; }
@@ -113,7 +113,7 @@
   /* PALPITE INLINE (modal admin) */
   .palpite-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; background: var(--bg3); border-radius: var(--radius); padding: .6rem .75rem; margin-bottom: .4rem; border: 1px solid var(--border); transition: border-color .15s; }
   .palpite-row:hover { border-color: var(--border2); }
-  .palpite-row.has-palpite { border-color: rgba(231,139,46,.3); }
+  .palpite-row.has-palpite { border-color: rgba(255,0,48,.3); }
   .palpite-row.encerrado { opacity: .55; }
   .pr-left { text-align: right; }
   .pr-right { text-align: left; }
@@ -121,7 +121,7 @@
   .pr-num { font-size: 11px; color: var(--text3); }
   .pr-center { display: flex; align-items: center; gap: 5px; justify-content: center; }
   .pr-input { width: 44px !important; text-align: center; font-size: 17px; font-weight: 700; padding: 5px 4px !important; border-radius: 8px !important; }
-  .pr-input:focus { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(231,139,46,.2); }
+  .pr-input:focus { border-color: var(--orange); box-shadow: 0 0 0 2px rgba(255,0,48,.2); }
   .pr-sep { font-size: 16px; color: var(--text3); font-weight: 700; }
   .pr-save { min-width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; border: none; transition: all .15s; }
   .pr-save.save { background: var(--orange); color: #000; }
@@ -165,7 +165,7 @@
   /* PÓDIO */
   .podio { display: grid; grid-template-columns: repeat(3, 1fr); gap: .9rem; margin-bottom: 1.25rem; }
   .podio-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1rem; text-align: center; }
-  .podio-card.p1 { border-color: var(--orange); background: rgba(231,139,46,.07); }
+  .podio-card.p1 { border-color: var(--orange); background: rgba(255,0,48,.07); }
   .podio-card.p2 { border-color: rgba(192,192,192,.3); }
   .podio-card.p3 { border-color: rgba(180,120,60,.3); }
   .podio-pos { font-size: 26px; margin-bottom: 5px; }
@@ -173,11 +173,11 @@
   .podio-pts { font-size: 20px; font-weight: 800; color: var(--orange); }
   .podio-sub { font-size: 11px; color: var(--text3); }
 
-  .campeao-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--orange); background: rgba(231,139,46,.12); padding: 2px 7px; border-radius: 20px; }
+  .campeao-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; color: var(--orange); background: rgba(255,0,48,.12); padding: 2px 7px; border-radius: 20px; }
   .var-badge { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 700; padding: 3px 7px; border-radius: 6px; white-space: nowrap; min-width: 36px; justify-content: center; }
   .var-subiu { background: rgba(34,197,94,.15); color: #22c55e; }
   .var-caiu { background: rgba(239,68,68,.15); color: #ef4444; }
-  .var-manteve { background: rgba(231,139,46,.15); color: var(--orange); }
+  .var-manteve { background: rgba(255,0,48,.15); color: var(--orange); }
   .var-novo { background: var(--surface2); color: var(--text3); }
   .divider { border: none; border-top: 1px solid var(--border); margin: .9rem 0; }
   .empty { text-align: center; padding: 1.5rem; color: var(--text3); font-size: 13px; }
@@ -195,7 +195,7 @@
   .jogo-accordion-toggle.open i { transform: rotate(180deg); }
   .jogo-palpites-list { margin-top: .5rem; display: flex; flex-direction: column; gap: .35rem; }
   .jp-item { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: .5rem; padding: .45rem .7rem; border-radius: 8px; font-size: 12px; }
-  .jp-item.acerto-5 { background: rgba(231,139,46,.12); border: 1px solid rgba(231,139,46,.3); }
+  .jp-item.acerto-5 { background: rgba(255,0,48,.12); border: 1px solid rgba(255,0,48,.3); }
   .jp-item.acerto-3 { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
   .jp-item.acerto-1 { background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); }
   .jp-item.acerto-0 { background: var(--bg3); border: 1px solid var(--border); }
@@ -204,7 +204,7 @@
   .jp-placar { font-size: 14px; font-weight: 800; color: var(--text2); white-space: nowrap; }
   .jp-placar.exato { color: var(--orange); }
   .jp-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap; }
-  .jp-badge.b5 { background: rgba(231,139,46,.2); color: var(--orange); }
+  .jp-badge.b5 { background: rgba(255,0,48,.2); color: var(--orange); }
   .jp-badge.b3 { background: rgba(34,197,94,.15); color: #22c55e; }
   .jp-badge.b1 { background: rgba(59,130,246,.15); color: #3b82f6; }
   .jp-badge.b0 { background: var(--surface2); color: var(--text3); }
@@ -233,9 +233,9 @@
 <div id="app">
   <nav>
     <div class="nav-brand">
-      <img src="https://wlmadv.com/wp-content/uploads/2020/12/group-66.svg" class="nav-logo" alt="Wilhelm Advogados"/>
+      <img src="https://cdn.prod.website-files.com/65c374d11a7f46926a3a150d/65c374d11a7f46926a3a1548_logo_contax.svg" class="nav-logo" alt="Contax"/>
       <div class="nav-divider"></div>
-      <span>⚽</span> Bolão Copa 2026
+      <span>⚽</span> Bolão Contax Copa 2026
     </div>
     <div class="nav-tabs" id="nav-tabs"></div>
   </nav>
@@ -244,8 +244,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const SUPABASE_URL = 'https://gqvjqadugnnhthboxwfb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdxdmpxYWR1Z25uaHRoYm94d2ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExOTc2NDgsImV4cCI6MjA5Njc3MzY0OH0.tEuXQtl0Lwo9HQ22EvxnkGEOb93zdvvF8TDuX6f_BsM';
+const SUPABASE_URL = 'https://kzfnuctsindncjsancki.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6Zm51Y3RzaW5kbmNqc2FuY2tpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEyODMyMTgsImV4cCI6MjA5Njg1OTIxOH0.V06y_tvs_EnGzWojxxcFbXHyJyvS2mNyeWwxjbBnBig';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const GRUPOS = ['A','B','C','D','E','F','G','H','I','J','K','L'];
@@ -278,7 +278,7 @@ async function loginAdmin() {
   const btn = document.getElementById('btn-login');
   if (btn) { btn.disabled=true; btn.innerHTML='<i class="ti ti-loader spin"></i> Entrando...'; }
   try {
-    const {data,error} = await sb.auth.signInWithPassword({email:'admin@bolao.com', password:senha});
+    const {data,error} = await sb.auth.signInWithPassword({email:'admin@contax.com', password:senha});
     if (error) throw error;
     state.session=data.session; state.adminLogado=true; render();
   } catch(e) {
@@ -291,7 +291,7 @@ async function sincronizarResultados() {
   const btn = document.getElementById('btn-sync');
   if (btn) { btn.disabled=true; btn.innerHTML='<i class="ti ti-loader spin"></i> Sincronizando...'; }
   try {
-    const r = await fetch('https://gqvjqadugnnhthboxwfb.supabase.co/functions/v1/sync-resultados', {
+    const r = await fetch('https://kzfnuctsindncjsancki.supabase.co/functions/v1/sync-resultados', {
       method: 'GET',
       headers: { 'Authorization': 'Bearer '+state.session.access_token }
     });
@@ -453,7 +453,7 @@ function renderRanking() {
   const rows=r.map((p,i)=>{
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
     const campeaoBadge = p.acertouCampeao
-      ? `<span class="campeao-badge" style="margin-top:3px;background:rgba(231,139,46,.3)">🏆 ${p.campeao} +20</span>`
+      ? `<span class="campeao-badge" style="margin-top:3px;background:rgba(255,0,48,.3)">🏆 ${p.campeao} +20</span>`
       : `<span class="campeao-badge" style="margin-top:3px">⭐ ${p.campeao}</span>`;
     let varBadge = '';
     if (p.variacao === 'subiu')    varBadge = `<span class="var-badge var-subiu">▲ ${p.variacaoN}</span>`;
