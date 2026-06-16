@@ -886,24 +886,29 @@ async function _salvarPalpite(partId, jogoId) {
   if (btn) { btn.innerHTML='<i class="ti ti-loader spin" style="font-size:12px"></i>'; btn.disabled=true; }
 
   try {
-    const existe = state.palpites.find(p=>p.participante_id===partId&&p.jogo_id===jogoId);
+    // Busca sempre do estado atual para evitar IDs temporários stale
+    const existe = state.palpites.find(p=>p.participante_id===partId&&p.jogo_id===jogoId&&!p.id?.startsWith('tmp-'));
     if (existe) {
       await api(`/rest/v1/palpites?id=eq.${existe.id}`,'PATCH',{gols_casa:gcN,gols_fora:gfN});
+      // Atualiza estado local
+      const idx = state.palpites.findIndex(p=>p.id===existe.id);
+      if (idx>=0) { state.palpites[idx].gols_casa=gcN; state.palpites[idx].gols_fora=gfN; }
     } else {
-      await api('/rest/v1/palpites','POST',{participante_id:partId,jogo_id:jogoId,gols_casa:gcN,gols_fora:gfN});
+      // Remove qualquer entrada temporária para este jogo antes de criar nova
+      state.palpites = state.palpites.filter(p=>!(p.participante_id===partId&&p.jogo_id===jogoId));
+      const res = await api('/rest/v1/palpites','POST',{participante_id:partId,jogo_id:jogoId,gols_casa:gcN,gols_fora:gfN});
+      // Salva com ID real retornado pelo banco
+      const novoId = Array.isArray(res) ? res[0]?.id : res?.id;
+      state.palpites.push({participante_id:partId,jogo_id:jogoId,gols_casa:gcN,gols_fora:gfN,pontos:null,id:novoId||('tmp-'+Date.now())});
     }
-    // atualiza estado local sem recarregar tudo
-    const idx = state.palpites.findIndex(p=>p.participante_id===partId&&p.jogo_id===jogoId);
-    if (idx>=0) { state.palpites[idx].gols_casa=gcN; state.palpites[idx].gols_fora=gfN; }
-    else { state.palpites.push({participante_id:partId,jogo_id:jogoId,gols_casa:gcN,gols_fora:gfN,pontos:null,id:'tmp-'+Date.now()}); }
     computeRanking();
-    // feedback visual inline
+    // Feedback visual inline
     if (btn) {
       btn.className='pr-save saved'; btn.disabled=false;
       btn.innerHTML='<i class="ti ti-check" style="font-size:13px"></i>';
       btn.onclick=null;
     }
-    // atualiza contador no título
+    // Atualiza contador no título
     const total = state.palpites.filter(p=>p.participante_id===partId).length;
     const badgeEl = document.querySelector('#modal-palpites .badge-ok');
     if (badgeEl) badgeEl.textContent=`${total}/${state.jogos.length}`;
@@ -930,7 +935,7 @@ async function _excluirPalpite(palpiteId, jogoId) {
 function fecharModal(){
   document.getElementById('modal-palpites')?.remove();
   state.modalFase=null; state.modalGrupo=null;
-  render(); // atualiza contadores na tabela
+  loadAll(); // recarrega tudo do banco ao fechar
 }
 
 async function salvarCampeao() {
