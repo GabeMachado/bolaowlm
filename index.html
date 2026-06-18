@@ -297,6 +297,12 @@
   .jp-badge.b3 { background: rgba(34,197,94,.15); color: #22c55e; }
   .jp-badge.b1 { background: rgba(59,130,246,.15); color: #3b82f6; }
   .jp-badge.b0 { background: var(--surface2); color: var(--text3); }
+  .jp-pending { opacity: .75; }
+  .jp-missing { background: rgba(239,68,68,.08) !important; }
+  .jp-missing .jp-nome { color: #ef4444; }
+  .jp-badge.b-done { background: rgba(34,197,94,.15); color: #22c55e; }
+  .jp-badge.b-missing { background: rgba(239,68,68,.15); color: #ef4444; }
+
   .jp-badge.bwait { background: var(--surface2); color: var(--text3); }
 
   /* PLACAR ADMIN INPUT */
@@ -662,6 +668,37 @@ function renderJogos() {
         <button class="jogo-accordion-toggle" id="toggle-${j.id}" onclick="toggleAccordion(${j.id})">
           <i class="ti ti-chevron-down"></i>
           <span>${resumo}</span>
+        </button>
+        <div class="jogo-palpites-list" id="acc-${j.id}" style="display:none">
+          ${palpItems}
+        </div>`;
+    } else {
+      // Jogo pendente: mostrar quem apostou e quem não apostou
+      const palpsFeitos = state.palpites.filter(p=>p.jogo_id===j.id);
+      const idsComPalpite = new Set(palpsFeitos.map(p=>p.participante_id));
+      const totalParts = state.participantes.length;
+      const totalFeitos = palpsFeitos.length;
+      const semPalpite = state.participantes.filter(p=>!idsComPalpite.has(p.id));
+
+      const palpItems = [
+        ...palpsFeitos.map(p=>`
+          <div class="jp-item acerto-0 jp-pending">
+            <span class="jp-nome">${partMap[p.participante_id]||'?'}</span>
+            <span class="jp-badge b-done"><i class="ti ti-check"></i> Apostou</span>
+          </div>`),
+        ...semPalpite.map(p=>`
+          <div class="jp-item jp-missing">
+            <span class="jp-nome">${p.nome}</span>
+            <span class="jp-badge b-missing"><i class="ti ti-x"></i> Sem palpite</span>
+          </div>`)
+      ].join('');
+
+      const resumo = `${totalFeitos}/${totalParts} apostaram`;
+
+      accordionHtml = `
+        <button class="jogo-accordion-toggle" id="toggle-${j.id}" onclick="toggleAccordion(${j.id})">
+          <i class="ti ti-chevron-down"></i>
+          <span>${resumo}${semPalpite.length > 0 ? ` · <span style="color:#ef4444">${semPalpite.length} sem palpite</span>` : ''}</span>
         </button>
         <div class="jogo-palpites-list" id="acc-${j.id}" style="display:none">
           ${palpItems}
