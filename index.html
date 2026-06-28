@@ -738,7 +738,16 @@ function renderJogos() {
       ${accordionHtml}
     </div>`;
   }).join('')||'<div class="empty">Nenhum jogo</div>';
-  const proximoJogo = [...state.jogos].sort((a,b)=>a.numero-b.numero).find(j=>!j.encerrado);
+  // Próximo jogo: prioriza quem tem data_hora mais próxima (cronologicamente),
+  // não o número do jogo — jogos eliminatórios podem acontecer fora da ordem numérica.
+  const proximoJogo = [...state.jogos]
+    .filter(j=>!j.encerrado)
+    .sort((a,b)=>{
+      const da = a.data_hora ? new Date(a.data_hora).getTime() : Infinity;
+      const db = b.data_hora ? new Date(b.data_hora).getTime() : Infinity;
+      if (da !== db) return da - db;
+      return a.numero - b.numero; // fallback: sem data definida, usa número
+    })[0];
   const proximoBanner = proximoJogo ? `
     <div class="next-match-banner" id="next-match-banner" data-jogo-hora="${proximoJogo.data_hora||''}">
       <div class="next-match-banner-inner">
