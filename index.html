@@ -371,7 +371,8 @@ let state = {
   tab:'ranking', adminLogado:false, session:null,
   jogos:[], participantes:[], palpites:[], ranking:[],
   loading:false, msg:null, fase:'grupo', grupo:'A',
-  modalPart:null, campeaoOficial:null, historicoRanking:[]
+  modalPart:null, campeaoOficial:null, historicoRanking:[],
+  consultaBusca:'', consultaSelecionado:null, consultaFiltro:null
 };
 
 async function api(path, method='GET', body=null) {
@@ -552,6 +553,7 @@ function render() {
   const tabs=[
     {id:'ranking',label:'Ranking',icon:'ti-trophy'},
     {id:'jogos',label:'Jogos',icon:'ti-ball-football'},
+    {id:'consulta',label:'Meus Palpites',icon:'ti-search'},
     {id:'admin',label:'Admin',icon:'ti-settings',badge:true},
   ];
   document.getElementById('nav-tabs').innerHTML=tabs.map(t=>`
@@ -572,20 +574,22 @@ function render() {
   if(state.tab==='ranking') el.innerHTML=renderRanking();
   else if(state.tab==='jogos') el.innerHTML=renderJogos();
   else if(state.tab==='palpites-pub') el.innerHTML=renderPalpitesPub();
+  else if(state.tab==='consulta') el.innerHTML=renderConsultaPalpites();
   else if(state.tab==='admin') el.innerHTML=state.adminLogado?renderAdmin():renderLogin();
 }
 
 // ---- RANKING ----
 function renderRanking() {
   const r=state.ranking;
+  const abrirConsulta = (id, nome) => `state.tab='consulta';state.consultaSelecionado='${id}';state.consultaBusca='${nome.replace(/'/g,"\\'")}';state.consultaFiltro=null;render();`;
   let podio='';
   if(r.length>=1){
     const [p1,p2,p3]=[r[0],r[1]||null,r[2]||null];
     const sub=(p)=>`${p.exatos}⭐ ${p.resultados}✓ ${p.parciais}〜${p.acertouCampeao?' 🏆+20':''}`;
     podio=`<div class="podio">
-      ${p2?`<div class="podio-card p2"><div class="podio-pos">🥈</div><div class="podio-nome">${p2.nome}</div><div class="podio-pts">${p2.pts} pts</div><div class="podio-sub">${sub(p2)}</div></div>`:'<div></div>'}
-      <div class="podio-card p1"><div class="podio-card-inner"><div class="podio-pos">🏆</div><div class="podio-nome">${p1.nome}</div><div class="podio-pts">${p1.pts} pts</div><div class="podio-sub">${sub(p1)}</div></div></div>
-      ${p3?`<div class="podio-card p3"><div class="podio-pos">🥉</div><div class="podio-nome">${p3.nome}</div><div class="podio-pts">${p3.pts} pts</div><div class="podio-sub">${sub(p3)}</div></div>`:'<div></div>'}
+      ${p2?`<div class="podio-card p2"><div class="podio-pos">🥈</div><div class="podio-nome" style="cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s" onmouseover="this.style.textDecorationColor='currentColor'" onmouseout="this.style.textDecorationColor='transparent'" onclick="${abrirConsulta(p2.id,p2.nome)}">${p2.nome}</div><div class="podio-pts">${p2.pts} pts</div><div class="podio-sub">${sub(p2)}</div></div>`:'<div></div>'}
+      <div class="podio-card p1"><div class="podio-card-inner"><div class="podio-pos">🏆</div><div class="podio-nome" style="cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s" onmouseover="this.style.textDecorationColor='currentColor'" onmouseout="this.style.textDecorationColor='transparent'" onclick="${abrirConsulta(p1.id,p1.nome)}">${p1.nome}</div><div class="podio-pts">${p1.pts} pts</div><div class="podio-sub">${sub(p1)}</div></div></div>
+      ${p3?`<div class="podio-card p3"><div class="podio-pos">🥉</div><div class="podio-nome" style="cursor:pointer;text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s" onmouseover="this.style.textDecorationColor='currentColor'" onmouseout="this.style.textDecorationColor='transparent'" onclick="${abrirConsulta(p3.id,p3.nome)}">${p3.nome}</div><div class="podio-pts">${p3.pts} pts</div><div class="podio-sub">${sub(p3)}</div></div>`:'<div></div>'}
     </div>`;
   }
   const rows=r.map((p,i)=>{
@@ -604,7 +608,7 @@ function renderRanking() {
     return `<tr${rowClass}>
       <td style="font-weight:700;font-size:15px;color:var(--orange)">${medal||i+1}</td>
       <td>${varBadge}</td>
-      <td class="nome-cell">${p.nome}<br>${campeaoBadge}</td>
+      <td class="nome-cell" style="cursor:pointer" onclick="${abrirConsulta(p.id,p.nome)}"><span style="text-decoration:underline;text-decoration-color:transparent;transition:text-decoration-color .15s" onmouseover="this.style.textDecorationColor='currentColor'" onmouseout="this.style.textDecorationColor='transparent'">${p.nome}</span><br>${campeaoBadge}</td>
       <td style="color:var(--orange);font-weight:700;font-size:15px">${p.pts}</td>
       <td><span class="badge badge-5">⭐ ${p.exatos}</span></td>
       <td><span class="badge badge-3">✓ ${p.resultados}</span></td>
@@ -873,6 +877,188 @@ function renderPalpitesPub() {
     </div>`;
   }).join('')||'<div class="empty">Nenhum jogo</div>';
   return `<div class="page"><div class="page-title"><i class="ti ti-target"></i> Palpites</div><div class="fase-tabs">${faseTabs}</div>${grupoTabs}${jogosHtml}</div>`;
+}
+
+// ---- CONSULTA DE PALPITES (por participante) ----
+function _formatarDataHoraCompacta(isoString) {
+  if (!isoString) return '—';
+  try {
+    const d = new Date(isoString);
+    const dataFmt = d.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit', timeZone:'America/Sao_Paulo' });
+    const horaFmt = d.toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'America/Sao_Paulo' });
+    return `${dataFmt} ${horaFmt}`;
+  } catch(e) { return '—'; }
+}
+
+function _iniciaisNome(nome) {
+  return nome.split(' ').filter(Boolean).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+function renderConsultaPalpites() {
+  const termo = (state.consultaBusca || '').trim().toLowerCase();
+  const candidatos = termo
+    ? state.participantes.filter(p => p.nome.toLowerCase().includes(termo))
+    : [];
+
+  let selecionadoId = state.consultaSelecionado;
+  if (termo && candidatos.length === 1) selecionadoId = candidatos[0].id;
+  const selecionado = selecionadoId ? state.participantes.find(p=>p.id===selecionadoId) : null;
+
+  const searchBar = `
+    <div style="position:relative;margin-bottom:1rem">
+      <i class="ti ti-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:16px"></i>
+      <input type="text" id="consulta-busca-input" placeholder="Buscar participante pelo nome..."
+        value="${state.consultaBusca||''}"
+        style="padding-left:40px;width:100%"
+        oninput="state.consultaBusca=this.value; state.consultaSelecionado=null; state.consultaFiltro=null; render(); setTimeout(()=>{const el=document.getElementById('consulta-busca-input'); if(el){el.focus(); el.setSelectionRange(el.value.length,el.value.length);}},0)">
+    </div>`;
+
+  let listaSugestoes = '';
+  if (termo && !selecionado) {
+    listaSugestoes = candidatos.length > 0
+      ? `<div class="card" style="padding:.5rem">
+          ${candidatos.map(p=>`
+            <div onclick="state.consultaSelecionado='${p.id}';state.consultaBusca='${p.nome.replace(/'/g,"\\\\'")}';state.consultaFiltro=null;render()"
+              style="display:flex;align-items:center;gap:12px;padding:.7rem .8rem;border-radius:10px;cursor:pointer;transition:background .15s"
+              onmouseover="this.style.background='rgba(255,255,255,.04)'" onmouseout="this.style.background='transparent'">
+              <div style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,.05);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:var(--text2)">${_iniciaisNome(p.nome)}</div>
+              <span style="font-weight:700;font-size:14px">${p.nome}</span>
+            </div>`).join('')}
+        </div>`
+      : `<div class="empty">Nenhum participante encontrado com esse nome.</div>`;
+  }
+
+  if (!selecionado) {
+    return `<div class="page">
+      <div class="page-title"><i class="ti ti-search"></i> Meus Palpites</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:1rem">Digite seu nome para consultar todos os palpites lançados, horários e pontuação.</div>
+      ${searchBar}
+      ${listaSugestoes || '<div class="empty">Digite um nome para começar a buscar.</div>'}
+    </div>`;
+  }
+
+  const palpitesDoParticipante = state.palpites.filter(p=>p.participante_id===selecionado.id);
+  const exatos = palpitesDoParticipante.filter(p=>p.pontos===5).length;
+  const resultados = palpitesDoParticipante.filter(p=>p.pontos===3).length;
+  const parciais = palpitesDoParticipante.filter(p=>p.pontos===1).length;
+  const erros = palpitesDoParticipante.filter(p=>p.pontos===0).length;
+
+  const rankInfo = state.ranking.find(r=>r.id===selecionado.id);
+  const posicao = state.ranking.findIndex(r=>r.id===selecionado.id);
+  const totalPontos = rankInfo ? rankInfo.pts : 0;
+
+  const palpMap = {};
+  for (const pa of palpitesDoParticipante) palpMap[pa.jogo_id]=pa;
+
+  const jogosComPalpite = state.jogos
+    .filter(j=>palpMap[j.id])
+    .sort((a,b)=>{
+      const da = a.data_hora ? new Date(a.data_hora).getTime() : Infinity;
+      const db = b.data_hora ? new Date(b.data_hora).getTime() : Infinity;
+      if (da !== db) return da - db;
+      return a.numero - b.numero;
+    });
+
+  const linhaHtml = (j, pa, acumulado) => {
+    let bc='badge-0', cl='Aguardando';
+    if (j.encerrado) {
+      if(pa.pontos===5){bc='badge-5';cl='⭐ Exato (+5)';}
+      else if(pa.pontos===3){bc='badge-3';cl='✓ Resultado (+3)';}
+      else if(pa.pontos===1){bc='badge-1';cl='〜 Parcial (+1)';}
+      else {bc='badge-0';cl='Errou (0)';}
+    }
+    const placarReal = j.encerrado ? `${j.gols_casa} × ${j.gols_fora}` : '—';
+    // Só mostra o palpite quando o jogo já aconteceu (encerrado) — evita influenciar outros participantes
+    const palpiteTxt = j.encerrado ? `${pa.gols_casa} × ${pa.gols_fora}` : 'Aguardando jogo';
+    return `<tr>
+      <td>
+        <div style="font-weight:700;font-size:13px">${j.time_casa} <span style="color:var(--text3);font-weight:400">×</span> ${j.time_fora}</div>
+        <div style="font-size:11px;color:var(--text3)">Jogo ${j.numero} · ${FASES[j.fase]||j.fase}</div>
+      </td>
+      <td style="font-size:12px;color:var(--text2)">${j.data_hora ? _formatarDataHoraCompacta(j.data_hora) : '—'}</td>
+      <td style="font-weight:700;font-size:14px;color:${j.encerrado?'var(--orange)':'var(--text3)'}">${palpiteTxt}</td>
+      <td style="font-size:12px;color:var(--text2)">${placarReal}</td>
+      <td><span class="badge ${bc}">${cl}</span></td>
+      <td style="font-size:13px;font-weight:700;color:var(--orange)">${j.encerrado?acumulado:'—'}</td>
+    </tr>`;
+  };
+
+  // Filtro vindo dos cards de estatística (exatos/resultados/parciais/erros), se ativo
+  const filtroCategoria = (state.consultaFiltro === undefined || state.consultaFiltro === null) ? null : state.consultaFiltro; // 5, 3, 1, 0 ou null
+  let jogosFiltrados = jogosComPalpite;
+  if (filtroCategoria !== null) {
+    jogosFiltrados = jogosComPalpite.filter(j => j.encerrado && palpMap[j.id].pontos === filtroCategoria);
+  }
+
+  // Calcula somatória corrida (acumulado) na ordem cronológica de TODOS os jogos com palpite,
+  // depois filtra para exibição — assim o acumulado reflete a posição real na linha do tempo.
+  let corrente = 0;
+  const acumuladoPorJogo = {};
+  for (const j of jogosComPalpite) {
+    if (j.encerrado) corrente += (palpMap[j.id].pontos || 0);
+    acumuladoPorJogo[j.id] = corrente;
+  }
+
+  const jogosGrupos = jogosFiltrados.filter(j=>j.fase==='grupo');
+  const jogosMataMata = jogosFiltrados.filter(j=>j.fase!=='grupo');
+
+  const labelFiltro = {5:'⭐ Exatos', 3:'✓ Resultado certo', 1:'〜 Parcial', 0:'Sem pontos'};
+  const avisoFiltro = filtroCategoria !== null
+    ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:.8rem">
+        <span class="badge badge-ok">Filtrando: ${labelFiltro[filtroCategoria]}</span>
+        <button class="btn btn-ghost btn-sm" onclick="state.consultaFiltro=null;render()"><i class="ti ti-x"></i> Limpar filtro</button>
+      </div>`
+    : '';
+
+  const linhasGrupos = jogosGrupos.map(j=>linhaHtml(j, palpMap[j.id], acumuladoPorJogo[j.id])).join('')
+    || `<tr><td colspan="6" class="empty">Nenhum palpite ${filtroCategoria!==null?'nessa categoria ':''}na fase de grupos</td></tr>`;
+  const linhasMataMata = jogosMataMata.map(j=>linhaHtml(j, palpMap[j.id], acumuladoPorJogo[j.id])).join('')
+    || `<tr><td colspan="6" class="empty">Nenhum palpite ${filtroCategoria!==null?'nessa categoria ':''}na fase eliminatória</td></tr>`;
+
+  return `<div class="page">
+    <div class="page-title"><i class="ti ti-search"></i> Meus Palpites</div>
+    ${searchBar}
+
+    <div class="card" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+      <div style="width:54px;height:54px;border-radius:14px;background:rgba(231,139,46,.15);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;color:var(--orange)">${_iniciaisNome(selecionado.nome)}</div>
+      <div style="flex:1;min-width:160px">
+        <div style="font-weight:700;font-size:17px">${selecionado.nome} ${posicao>=0?`<span class="badge badge-1" style="margin-left:6px">${posicao+1}º lugar</span>`:''}</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:2px">${palpitesDoParticipante.length} palpite(s) lançado(s) · Palpite campeão: ${selecionado.palpite_campeao||'—'}</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-size:26px;font-weight:700;color:var(--orange)">${totalPontos}</div>
+        <div style="font-size:11px;color:var(--text3)">pontos totais</div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card" style="cursor:pointer;${filtroCategoria===5?'border-color:var(--orange)':''}" onclick="state.consultaFiltro=state.consultaFiltro===5?null:5;render()"><div class="stat-num" style="color:var(--orange)">${exatos}</div><div class="stat-lbl">⭐ Exatos (5pt)</div></div>
+      <div class="stat-card" style="cursor:pointer;${filtroCategoria===3?'border-color:var(--green)':''}" onclick="state.consultaFiltro=state.consultaFiltro===3?null:3;render()"><div class="stat-num" style="color:var(--green)">${resultados}</div><div class="stat-lbl">✓ Resultado (3pt)</div></div>
+      <div class="stat-card" style="cursor:pointer;${filtroCategoria===1?'border-color:var(--blue)':''}" onclick="state.consultaFiltro=state.consultaFiltro===1?null:1;render()"><div class="stat-num" style="color:var(--blue)">${parciais}</div><div class="stat-lbl">〜 Parcial (1pt)</div></div>
+      <div class="stat-card" style="cursor:pointer;${filtroCategoria===0?'border-color:var(--text3)':''}" onclick="state.consultaFiltro=state.consultaFiltro===0?null:0;render()"><div class="stat-num" style="color:var(--text3)">${erros}</div><div class="stat-lbl">Sem pontos</div></div>
+    </div>
+    ${avisoFiltro}
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:.85rem 1.1rem;border-bottom:1px solid var(--border)"><span style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase">Fase de Grupos</span></div>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Jogo</th><th>Horário do jogo</th><th>Seu palpite</th><th>Resultado</th><th>Pontuação</th><th>Pontos acumulados</th></tr></thead>
+          <tbody>${linhasGrupos}</tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="padding:0;overflow:hidden">
+      <div style="padding:.85rem 1.1rem;border-bottom:1px solid var(--border)"><span style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase">Mata-mata</span></div>
+      <div class="scroll-x">
+        <table class="tbl">
+          <thead><tr><th>Jogo</th><th>Horário do jogo</th><th>Seu palpite</th><th>Resultado</th><th>Pontuação</th><th>Pontos acumulados</th></tr></thead>
+          <tbody>${linhasMataMata}</tbody>
+        </table>
+      </div>
+    </div>
+  </div>`;
 }
 
 // ---- LOGIN ----
